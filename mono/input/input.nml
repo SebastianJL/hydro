@@ -1,7 +1,7 @@
 This namelist contains various input parameters for HYDRO runs
 
 &RUN
-tend=1000
+tend=15000
 noutput=50
 /
 
@@ -10,7 +10,7 @@ nx=50
 ny=300
 dx=0.08
 boundary_left=1
-boundary_right=2
+boundary_right=1
 boundary_down=1
 boundary_up=1
 /
