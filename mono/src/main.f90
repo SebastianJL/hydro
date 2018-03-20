@@ -31,7 +31,7 @@ program hydro_main
      ! Output results
      if(MOD(nstep,noutput)==0)then
         call output
-      end if
+     end if
 
      ! Compute new time-step
      if(MOD(nstep,2)==0)then
