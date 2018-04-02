@@ -1,5 +1,5 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -*- Mode: F90 -*- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!! main.f90 --- 
+!! main.f90 ---
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 program hydro_main
@@ -20,10 +20,13 @@ program hydro_main
   ! Read run parameters
   call read_params
 
+  ! Prepare output directory
+  call prepare_output
+
   ! Initialize hydro grid
   call init_hydro
 
-  print*,'Starting time integration, nx = ',nx,' ny = ',ny  
+  print*,'Starting time integration, nx = ',nx,' ny = ',ny
 
   ! Main time loop
   do while (t < tend .and. nstep < nstepmax)
@@ -64,9 +67,9 @@ program hydro_main
   if (nbp_final>nbp_init) then
      tps_elapsed=real(nbp_final-nbp_init)/real(freq_p)
   else
-     tps_elapsed=real(nbp_final-nbp_init+nbp_max)/real(freq_p) 
-  endif  
+     tps_elapsed=real(nbp_final-nbp_init+nbp_max)/real(freq_p)
+  endif
   print *,'Temps CPU (s.)     : ',tps_cpu
   print *,'Temps elapsed (s.) : ',tps_elapsed
-  
+
 end program hydro_main

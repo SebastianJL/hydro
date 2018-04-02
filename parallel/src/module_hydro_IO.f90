@@ -7,6 +7,8 @@
 
 module hydro_IO
 
+character(LEN=80) :: dir  ! output directory
+
 contains
 
 subroutine read_params
@@ -38,6 +40,22 @@ subroutine read_params
   close(1)
 end subroutine read_params
 
+subroutine prepare_output
+  use hydro_parameters
+
+  ! Local variables
+  character(LEN=5) :: char_nx, char_ny
+  character(LEN=8) :: date
+  character(LEN=10) :: time
+  character(LEN=5) :: zone
+
+  call DATE_AND_TIME(date=date, time=time, zone=zone)
+  call title(nx, char_nx)
+  call title(ny, char_ny)
+  dir = '../output/'//'nx'//TRIM(char_nx)//'-ny'//TRIM(char_ny)//'-'//date//'-'//time//'-'//zone//'/'
+  call SYSTEM('mkdir '//TRIM(dir))
+  call SYSTEM('cp ../input/input.nml '//dir)
+end subroutine prepare_output
 
 subroutine output
   use hydro_commons
@@ -52,7 +70,7 @@ subroutine output
   nout=nstep/noutput
   call title(nout,char)
   call title(MYPE,charpe)
-  filename='../output/output_'//TRIM(char)//'.'//TRIM(charpe)
+  filename=TRIM(dir)//'output_'//TRIM(char)//'.'//TRIM(charpe)
   open(10,file=filename,form='unformatted')
   rewind(10)
   print*,'Outputting array of size=',nx,ny,nvar
@@ -60,8 +78,7 @@ subroutine output
   write(10)nx,ny,nvar,nstep
   write(10)real(uold(imin+2:imax-2,jmin+2:jmax-2,1:nvar),kind=prec_output)
   close(10)
-
-contains
+end subroutine output
 
 subroutine title(n,nchar)
   use hydro_precision
@@ -92,7 +109,5 @@ subroutine title(n,nchar)
      nchar = '0000'//nchar1
   endif
 end subroutine title
-
-end subroutine output
 
 end module hydro_IO
