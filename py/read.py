@@ -1,4 +1,4 @@
-import fortranfile
+from py import fortranfile
 import numpy
 from matplotlib import pyplot
 
