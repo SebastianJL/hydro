@@ -52,7 +52,7 @@ subroutine prepare_output
   call DATE_AND_TIME(date=date, time=time, zone=zone)
   call title(nx, char_nx)
   call title(ny, char_ny)
-  dir = '../output/'//'nx'//TRIM(char_nx)//'-ny'//TRIM(char_ny)//'-'//date//'-'//time//'-'//zone//'/'
+  dir = '../output/output-'//'nx'//TRIM(char_nx)//'-ny'//TRIM(char_ny)//'-'//date//'-'//time//'-'//zone//'/'
   call SYSTEM('mkdir '//TRIM(dir))
   call SYSTEM('cp ../input/input.nml '//dir)
 end subroutine prepare_output
