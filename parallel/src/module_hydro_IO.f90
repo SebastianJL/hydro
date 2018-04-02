@@ -1,8 +1,8 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -*- Mode: F90 -*- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!! module_hydro_IO.f90 --- 
+!! module_hydro_IO.f90 ---
 !!!!
 !! subroutine read_params
-!! subroutine output 
+!! subroutine output
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 module hydro_IO
@@ -52,7 +52,7 @@ subroutine output
   nout=nstep/noutput
   call title(nout,char)
   call title(MYPE,charpe)
-  filename='output_'//TRIM(char)//'.'//TRIM(charpe)
+  filename='../output/output_'//TRIM(char)//'.'//TRIM(charpe)
   open(10,file=filename,form='unformatted')
   rewind(10)
   print*,'Outputting array of size=',nx,ny,nvar
