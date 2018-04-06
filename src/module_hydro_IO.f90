@@ -52,7 +52,13 @@ contains
         call DATE_AND_TIME(date = date, time = time, zone = zone)
         call title(nx, char_nx)
         call title(ny, char_ny)
-        dir = '../output/output-' // 'nx' // TRIM(char_nx) // '-ny' // TRIM(char_ny) // '-' // date // '-' // time // '-' // zone // '/'
+        dir = '../output/output' &
+                // '-' // date &
+                // '-' // time &
+                // '-' // zone &
+                // '-nx' // TRIM(char_nx) &
+                // '-ny' // TRIM(char_ny) &
+                // '/'
         call SYSTEM('mkdir ' // TRIM(dir))
         call SYSTEM('cp ../input/input.nml ' // dir)
     end subroutine prepare_output
@@ -92,16 +98,16 @@ contains
         character(LEN = 4) :: nchar4
         character(LEN = 5) :: nchar5
 
-        if(n.ge.10000)then
+        if (n >= 10000) then
             write(nchar5, '(i5)') n
             nchar = nchar5
-        elseif(n.ge.1000)then
+        elseif (n >= 1000) then
             write(nchar4, '(i4)') n
             nchar = '0' // nchar4
-        elseif(n.ge.100)then
+        elseif (n >= 100) then
             write(nchar3, '(i3)') n
             nchar = '00' // nchar3
-        elseif(n.ge.10)then
+        elseif (n >= 10) then
             write(nchar2, '(i2)') n
             nchar = '000' // nchar2
         else
