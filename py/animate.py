@@ -13,9 +13,9 @@ def directory(arg: Any, parser: argparse.ArgumentParser = None):
     """Check if argument is a directory and format such that it ends with '/'"""
     if not os.path.isdir(arg):
         msg = 'The directory "{}" does not exist'.format(arg)
-        try:
+        if parser is not None:
             parser.error(msg)
-        except AttributeError:
+        else:
             raise FileNotFoundError(msg)
     else:
         if not arg[-1] == '/':
