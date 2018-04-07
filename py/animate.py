@@ -102,8 +102,8 @@ ani = animation.ArtistAnimation(fig, frames, interval=100, repeat_delay=100)
 if args.save:
     print('saving animation in {}'.format(args.outfile))
     start_time = time.time()
-    ani.save(args.outfile, writer=animation.FFMpegWriter(fps=60))
-    print(time.time() - start_time, 's', sep='')
+    ani.save(args.outfile, writer=animation.FFMpegWriter(fps=30))
+    print('time needed for saving: {:.2f}s'.format(time.time() - start_time))
 
 # display
 if args.show or not args.save:
