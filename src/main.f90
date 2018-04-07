@@ -7,10 +7,16 @@ program hydro_main
     use hydro_parameters
     use hydro_IO
     use hydro_principal
+    use mpi
     implicit none
 
     real(kind = prec_real) :: dt, tps_elapsed, tps_cpu, t_deb, t_fin
     integer(kind = prec_int) :: nbp_init, nbp_final, nbp_max, freq_p
+
+    ! Init mpi
+    call mpi_init(ierror)
+    call mpi_comm_size(mpi_comm_world, world_size, ierror)
+    call mpi_comm_rank(mpi_comm_world, world_rank, ierror)
 
     ! Initialize clock counter
     call system_clock(count_rate = freq_p, count_max = nbp_max)
@@ -71,5 +77,7 @@ program hydro_main
     endif
     print *, 'Temps CPU (s.)     : ', tps_cpu
     print *, 'Temps elapsed (s.) : ', tps_elapsed
+
+    call mpi_finalize(ierror)
 
 end program hydro_main

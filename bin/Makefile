@@ -4,7 +4,7 @@
 
 
 #------------------
-F90 = gfortran
+F90 = mpifort
 
 # Fortran compilation options
 #-----------------------------

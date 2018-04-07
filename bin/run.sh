@@ -1,3 +1,3 @@
 #!/bin/bash
 ./compile.sh
-./hydro
+mpirun -np 4 hydro
