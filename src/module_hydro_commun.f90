@@ -25,7 +25,7 @@ module hydro_parameters
     use hydro_precision
     integer(kind = prec_int) :: nx = 2
     integer(kind = prec_int) :: ny = 2
-    integer(kind = prec_int) :: nvar = 4
+    integer(kind = prec_int) :: nvar = 4  !QUESTION: What is this?
     real(kind = prec_real) :: dx = 1.0
     real(kind = prec_real) :: tend = 0.0
     real(kind = prec_real) :: gamma = 1.4d0
