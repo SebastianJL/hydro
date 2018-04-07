@@ -29,7 +29,8 @@ parser.add_argument('-d', '--directory', type=lambda arg: directory(arg, parser)
 parser.add_argument('-o', '--outfile', type=str, default='animation.mp4',
                     help='filename for animation. also determines filetype through ending')
 parser.add_argument('-f', '--format', type=str, default='output_{:05}.00000', help='file format for output files')
-parser.add_argument('-l', '--latest', action='store_true', help='attempt to use latest output directory', dest='use_latest')
+parser.add_argument('-l', '--latest', action='store_true', help='attempt to use latest output directory',
+                    dest='use_latest')
 parser.add_argument('-s', '--show', action='store_true', help='show animation after saving')
 args = parser.parse_args()
 
