@@ -60,11 +60,10 @@ fig = plt.figure(figsize=(800 / dpi, 800 / dpi), dpi=dpi)
 print("reading image data from files...")
 frames = []
 for map_file in map_files:
-    f = FortranFile(map_file, 'r')
-    [t, gamma] = f.read_reals('f4')
-    [nx, ny, nvar, nstep] = f.read_ints('i')
-    dat = f.read_reals('f4')
-    f.close()
+    with FortranFile(map_file, 'r') as f:
+        [t, gamma] = f.read_reals('f4')
+        [nx, ny, nvar, nstep] = f.read_ints('i')
+        dat = f.read_reals('f4')
 
     dat = np.array(dat)
     dat = dat.reshape(nvar, ny, nx)
