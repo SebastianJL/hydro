@@ -1,10 +1,11 @@
-import time
 import argparse
-from scipy.io import FortranFile
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import os
+import time
+
+import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.io import FortranFile
 
 
 def directory(parser, arg):
@@ -21,7 +22,10 @@ def directory(parser, arg):
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--directory', type=lambda arg: directory(parser, arg), default='./',
                     help='directory in which output to be processed is saved', dest='dir')
-parser.add_argument('-f', '--format', type=str, default='output_{:05}.00000', help='file format for output files',
+parser.add_argument('-f', '--filename', type=str, default='animation.gif',
+                    help='filename for animation. also determines filetype through ending',
+                    dest='filename')
+parser.add_argument('-F', '--format', type=str, default='output_{:05}.00000', help='file format for output files',
                     dest='format')
 args = parser.parse_args()
 
@@ -39,12 +43,12 @@ if j == 0:
     print("no files found, exiting...")
     exit()
 
-my_dpi = 96
-fig = plt.figure(figsize=(800 / my_dpi, 200 / my_dpi), dpi=my_dpi)
+dpi = 96
+fig = plt.figure(figsize=(800 / dpi, 800 / dpi), dpi=dpi)
 
 print("reading image data from files...")
 # read image data
-images = []
+frames = []
 for map_file in map_files:
     f = FortranFile(map_file, 'r')
     [t, gamma] = f.read_reals('f4')
@@ -65,14 +69,15 @@ for map_file in map_files:
         vmin=-3.308183,
         vmax=1.5684958
     )
-    images.append([img])
+    frames.append([img])
 
 # animate
-ani = animation.ArtistAnimation(fig, images, interval=100, blit=False, repeat_delay=1000)
+ani = animation.ArtistAnimation(fig, frames, interval=100, repeat_delay=100)
 
 # needs ffmpeg to be installed
 # save animation
-a = time.time()
-# ani.save('dynamic_images.gif', writer=animation.FFMpegWriter(fps=60, extra_args=['--verbose-debug']))
-print(time.time() - a)
+print('saving animation...')
+start_time = time.time()
+# ani.save(args.filename, writer=animation.FFMpegWriter(fps=60, extra_args=['-report']))
+print(time.time() - start_time, 's', sep='')
 plt.show()
