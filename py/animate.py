@@ -26,10 +26,10 @@ def directory(arg, parser=None):
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--directory', type=lambda arg: directory(arg, parser), default='./',
                     help='directory in which output to be processed is saved', dest='dir')
-parser.add_argument('-f', '--filename', type=str, default='animation.gif',
+parser.add_argument('-o', '--outfile', type=str, default='animation.mp4',
                     help='filename for animation. also determines filetype through ending',
-                    dest='filename')
-parser.add_argument('-F', '--format', type=str, default='output_{:05}.00000', help='file format for output files',
+                    dest='outfile')
+parser.add_argument('-f', '--format', type=str, default='output_{:05}.00000', help='file format for output files',
                     dest='format')
 parser.add_argument('-l', '--latest', action='store_true', help='attempt to use latest output directory', dest='use_latest')
 args = parser.parse_args()
@@ -87,6 +87,6 @@ ani = animation.ArtistAnimation(fig, frames, interval=100, repeat_delay=100)
 # save animation
 print('saving animation...')
 start_time = time.time()
-# ani.save(args.filename, writer=animation.FFMpegWriter(fps=60, extra_args=['-report']))
+ani.save(args.outfile, writer=animation.FFMpegWriter(fps=60))
 print(time.time() - start_time, 's', sep='')
 plt.show()
