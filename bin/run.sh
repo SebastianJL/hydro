@@ -1,5 +1,3 @@
 #!/bin/bash
-make cleanall
-make
-make clean
+./compile.sh
 ./hydro
