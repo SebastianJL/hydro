@@ -3,3 +3,4 @@
 output/
 bin/
 venv/
+__pycache__
