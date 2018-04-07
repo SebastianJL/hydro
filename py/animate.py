@@ -44,7 +44,7 @@ else:
 
 map_files = []
 j = 0
-print('loading files from {}'.format(path))
+print('loading files with format pattern: {}'.format(path))
 while True:
     if not os.path.exists(path.format(j)):
         break
@@ -85,7 +85,7 @@ for map_file in map_files:
 ani = animation.ArtistAnimation(fig, frames, interval=100, repeat_delay=100)
 
 # save animation
-print('saving animation...')
+print('saving animation in {}'.format(args.outfile))
 start_time = time.time()
 ani.save(args.outfile, writer=animation.FFMpegWriter(fps=60))
 print(time.time() - start_time, 's', sep='')
