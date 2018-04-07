@@ -31,7 +31,9 @@ parser.add_argument('-o', '--outfile', type=str, default='animation.mp4',
 parser.add_argument('-f', '--format', type=str, default='output_{:05}.00000', help='file format for output files')
 parser.add_argument('-l', '--latest', action='store_true', help='attempt to use latest output directory',
                     dest='use_latest')
-parser.add_argument('-s', '--show', action='store_true', help='show animation after saving')
+parser.add_argument('-s', '--show', action='store_true',
+                    help='show animation after saving. default when using option --no-save  ')
+parser.add_argument('-n', '--no-save', action='store_false', help="don't save animation, show instead", dest='save')
 args = parser.parse_args()
 
 # determine path to files
@@ -83,9 +85,12 @@ for map_file in map_files:
 ani = animation.ArtistAnimation(fig, frames, interval=100, repeat_delay=100)
 
 # save animation
-print('saving animation in {}'.format(args.outfile))
-start_time = time.time()
-ani.save(args.outfile, writer=animation.FFMpegWriter(fps=60))
-print(time.time() - start_time, 's', sep='')
-if args.show:
+if args.save:
+    print('saving animation in {}'.format(args.outfile))
+    start_time = time.time()
+    ani.save(args.outfile, writer=animation.FFMpegWriter(fps=60))
+    print(time.time() - start_time, 's', sep='')
+
+# display
+if args.show or not args.save:
     plt.show()
