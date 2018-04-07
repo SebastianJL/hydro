@@ -1,6 +1,7 @@
 import argparse
 import os
 import time
+from typing import Any
 
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
@@ -8,8 +9,8 @@ import numpy as np
 from scipy.io import FortranFile
 
 
-def directory(arg, parser=None):
-    """Check if argument is a directory and format such that it ends with "/" """
+def directory(arg: Any, parser: argparse.ArgumentParser = None):
+    """Check if argument is a directory and format such that it ends with '/'"""
     if not os.path.isdir(arg):
         msg = 'The directory "{}" does not exist'.format(arg)
         try:
@@ -22,6 +23,8 @@ def directory(arg, parser=None):
         return str(arg)
 
 
+output_dir_prefix = 'output-'
+
 # parse cli arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--directory', type=lambda arg: directory(arg, parser), default='./',
@@ -29,7 +32,9 @@ parser.add_argument('-d', '--directory', type=lambda arg: directory(arg, parser)
 parser.add_argument('-o', '--outfile', type=str, default='animation.mp4',
                     help='filename for animation. also determines filetype through file extension')
 parser.add_argument('-f', '--format', type=str, default='output_{:05}.00000', help='file format for output files')
-parser.add_argument('-l', '--latest', action='store_true', help='attempt to use latest output directory',
+parser.add_argument('-l', '--latest', action='store_true',
+                    help='attempt to use latest output directory based on lexicographical order. directory name has to \
+                    start with "{}"'.format(output_dir_prefix),
                     dest='use_latest')
 parser.add_argument('-s', '--show', action='store_true',
                     help='show animation after saving. default when using option --no-save  ')
@@ -39,8 +44,18 @@ args = parser.parse_args()
 # determine path to files
 if args.use_latest:
     output = '../output/'
-    dirs = (os.path.join(output, dir) for dir in os.listdir(output) if os.path.isdir(os.path.join(output, dir)))
-    path = directory(max(dirs)) + args.format
+    dirs = (os.path.join(output, dir) for dir in os.listdir(output)
+            if os.path.isdir(os.path.join(output, dir)) and dir.startswith(output_dir_prefix))
+    try:
+        dir = max(dirs)
+    except ValueError as e:
+        if e.args[0] == 'max() arg is an empty sequence':
+            raise FileNotFoundError(
+                'No directory with prefix "{}" found. Use --directory to specifiy location of directory with output files.'.format(
+                    output_dir_prefix))
+        else:
+            raise
+    path = max(dirs) + args.format
 else:
     path = args.dir + args.format
 
