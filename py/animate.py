@@ -27,11 +27,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--directory', type=lambda arg: directory(arg, parser), default='./',
                     help='directory in which output to be processed is saved', dest='dir')
 parser.add_argument('-o', '--outfile', type=str, default='animation.mp4',
-                    help='filename for animation. also determines filetype through ending',
-                    dest='outfile')
-parser.add_argument('-f', '--format', type=str, default='output_{:05}.00000', help='file format for output files',
-                    dest='format')
+                    help='filename for animation. also determines filetype through ending')
+parser.add_argument('-f', '--format', type=str, default='output_{:05}.00000', help='file format for output files')
 parser.add_argument('-l', '--latest', action='store_true', help='attempt to use latest output directory', dest='use_latest')
+parser.add_argument('-s', '--show', action='store_true', help='show animation after saving')
 args = parser.parse_args()
 
 # determine path to files
@@ -45,9 +44,7 @@ else:
 map_files = []
 j = 0
 print('loading files with format pattern: {}'.format(path))
-while True:
-    if not os.path.exists(path.format(j)):
-        break
+while os.path.exists(path.format(j)):
     map_files.append(path.format(j))
     j += 1
 if j == 0:
@@ -89,4 +86,5 @@ print('saving animation in {}'.format(args.outfile))
 start_time = time.time()
 ani.save(args.outfile, writer=animation.FFMpegWriter(fps=60))
 print(time.time() - start_time, 's', sep='')
-plt.show()
+if args.show:
+    plt.show()
