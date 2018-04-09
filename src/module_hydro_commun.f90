@@ -15,8 +15,9 @@ end module hydro_precision
 
 module hydro_commons
     use hydro_precision
-    integer(kind = prec_int) :: imin, imax, jmin, jmax
-    real(kind = prec_real), allocatable, dimension(:, :, :) :: uold
+    integer(kind = prec_int) :: imin, imax, jmin, jmax  ! Global grid indices
+    integer :: imin_local, imax_local, jmin_local, jmax_local  ! Grid indices local to process
+    real(kind = prec_real), allocatable, dimension(:, :, :) :: uold  ! Grid
     real(kind = prec_real) :: t = 0.
     integer(kind = prec_int) :: nstep = 0
     integer :: world_rank, world_size, ierror  ! common mpi variables

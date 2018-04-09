@@ -19,10 +19,28 @@ contains
         ! Local variables
         integer(kind = prec_int) :: i, j
 
+        ! Indices for entire grid
         imin = 1
         imax = nx + 4
         jmin = 1
         jmax = ny + 4
+
+        ! Indices for process local part of grid
+        imin_local = imin
+        imax_local = imax
+        jmin_local = world_rank*(ny)/world_size + 1
+        jmax_local = world_rank*(ny)/world_size + 4 + (ny)/world_size
+        jmax_local = min(jmax_local, jmax)
+
+        if (world_rank == 0) then
+            print *, 'imin, imax', imin, imax
+            print *, 'jmin, jmax', jmin, jmax
+        end if
+        print *, 'process', world_rank, ': imin_local, imax_local, jmin_local, jmax_local are', &
+                imin_local, imax_local, jmin_local, jmax_local
+
+        call mpi_barrier(ierror)
+        call exit
 
         allocate(uold(imin:imax, jmin:jmax, 1:nvar))
 
