@@ -20,6 +20,9 @@ module hydro_commons
     real(kind = prec_real), allocatable, dimension(:, :, :) :: uold  ! Grid
     real(kind = prec_real) :: t = 0.
     integer(kind = prec_int) :: nstep = 0
+end module hydro_commons
+
+module hydro_mpi_vars
     integer :: world_rank, world_size, ierror  ! common mpi variables
 
 end module hydro_commons

@@ -7,6 +7,7 @@ program hydro_main
     use hydro_parameters
     use hydro_IO
     use hydro_principal
+    use hydro_mpi_vars
     use mpi
     implicit none
 

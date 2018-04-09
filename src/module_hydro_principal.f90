@@ -14,6 +14,7 @@ contains
         use hydro_commons
         use hydro_const
         use hydro_parameters
+        use hydro_mpi_vars
         implicit none
 
         ! Local variables
