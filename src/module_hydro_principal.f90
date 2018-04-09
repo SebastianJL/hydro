@@ -33,16 +33,6 @@ contains
         jmax_local = world_rank*(ny)/world_size + 4 + (ny)/world_size
         jmax_local = min(jmax_local, jmax)
 
-        if (world_rank == master) then
-            print *, 'imin, imax', imin, imax
-            print *, 'jmin, jmax', jmin, jmax
-        end if
-        print *, 'process', world_rank, ': imin_local, imax_local, jmin_local, jmax_local are', &
-                imin_local, imax_local, jmin_local, jmax_local
-
-        call mpi_barrier(ierror)
-        call exit
-
         allocate(uold(imin:imax, jmin:jmax, 1:nvar)) !Question: What are these layers (1:nvar)?
 
         ! Initial conditions in grid interior
@@ -92,13 +82,15 @@ contains
         use hydro_const
         use hydro_parameters
         use hydro_utils
+        use hydro_mpi_vars
+        use mpi
         implicit none
 
         ! Dummy arguments
         real(kind = prec_real), intent(out) :: dt
         ! Local variables
         integer(kind = prec_int) :: i, j
-        real(kind = prec_real) :: cournox, cournoy, eken
+        real(kind = prec_real) :: cournox, cournoy, eken, dt_send
         real(kind = prec_real), dimension(:, :), allocatable :: q
         real(kind = prec_real), dimension(:), allocatable :: e, c
 
@@ -109,7 +101,7 @@ contains
         allocate(q(1:nx, 1:IP))
         allocate(e(1:nx), c(1:nx))
 
-        do j = jmin + 2, jmax - 2
+        do j = jmin_local + 2, jmax_local - 2
 
             do i = 1, nx
                 q(i, ID) = max(uold(i + 2, j, ID), smallr)
@@ -129,7 +121,8 @@ contains
 
         deallocate(q, e, c)
 
-        dt = courant_factor*dx/max(cournox, cournoy, smallc)
+        dt_send = courant_factor*dx/max(cournox, cournoy, smallc)
+        call mpi_allreduce(dt_send, dt, 1, mpi_double_precision, mpi_min, mpi_comm_world, ierror)  !Question: Why do I need mpi_double_precision?
     end subroutine cmpdt
 
 
