@@ -60,8 +60,8 @@ contains
                 // '-nx' // TRIM(char_nx) &
                 // '-ny' // TRIM(char_ny) &
                 // '/'
-        call SYSTEM('mkdir ' // TRIM(dir))
-        call SYSTEM('cp ../input/input.nml ' // dir)
+        call SYSTEM('mkdir -p ' // ' ' // TRIM(dir))  !Question: Is this better than letting the master process do this?
+        call SYSTEM('cp ../input/input.nml ' // TRIM(dir))
     end subroutine prepare_output
 
     subroutine output
