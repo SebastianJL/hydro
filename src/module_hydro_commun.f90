@@ -49,7 +49,7 @@ end module hydro_parameters
 
 module hydro_const
     use hydro_precision
-    real(kind = prec_real) :: zero = 0.0
+    real(kind = prec_real) :: zero = 0.0  !Question: What the fuck?
     real(kind = prec_real) :: one = 1.0
     real(kind = prec_real) :: two = 2.0
     real(kind = prec_real) :: three = 3.0

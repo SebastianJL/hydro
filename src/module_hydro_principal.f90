@@ -42,7 +42,7 @@ contains
         call mpi_barrier(ierror)
         call exit
 
-        allocate(uold(imin:imax, jmin:jmax, 1:nvar))
+        allocate(uold(imin:imax, jmin:jmax, 1:nvar)) !Question: What are these layers (1:nvar)?
 
         ! Initial conditions in grid interior
         ! Warning: conservative variables U = (rho, rhou, rhov, E)
