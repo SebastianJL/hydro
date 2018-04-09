@@ -33,7 +33,7 @@ contains
         jmax_local = world_rank*(ny)/world_size + 4 + (ny)/world_size
         jmax_local = min(jmax_local, jmax)
 
-        if (world_rank == 0) then
+        if (world_rank == master) then
             print *, 'imin, imax', imin, imax
             print *, 'jmin, jmax', jmin, jmax
         end if

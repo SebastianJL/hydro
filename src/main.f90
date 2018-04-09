@@ -28,7 +28,9 @@ program hydro_main
     call read_params
 
     ! Prepare output directory
-    call prepare_output
+    if (world_rank == master) then
+        call prepare_output
+    end if
 
     ! Initialize hydro grid
     call init_hydro

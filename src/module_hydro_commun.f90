@@ -24,8 +24,8 @@ end module hydro_commons
 
 module hydro_mpi_vars
     integer :: world_rank, world_size, ierror  ! common mpi variables
-
-end module hydro_commons
+    integer, parameter :: master = 0
+end module hydro_mpi_vars
 
 module hydro_parameters
     use hydro_precision
