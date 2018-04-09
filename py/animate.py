@@ -56,7 +56,7 @@ if args.use_latest:
                     output_dir_prefix))
         else:
             raise
-    path = dir + args.format
+    path = directory(dir) + args.format
 else:
     path = args.dir + args.format
 
