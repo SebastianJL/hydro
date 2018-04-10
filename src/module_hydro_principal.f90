@@ -1,7 +1,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -*- Mode: F90 -*- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !! module_hydro_principal.f90 --- 
 !!!!
-!! subroutine init_hydro
+!! subroutine init_hydro_grid
 !! subroutine cmpdt(dt)
 !! subroutine godunov(idim,dt)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -10,7 +10,7 @@ module hydro_principal
 
 contains
 
-    subroutine init_hydro
+    subroutine init_hydro_grid
         use hydro_commons
         use hydro_const
         use hydro_parameters
@@ -74,7 +74,7 @@ contains
         !!$        uold(i,j,IP)=0.1/(gamma-1.0)
         !!$     end do
         !!$  end do
-    end subroutine init_hydro
+    end subroutine init_hydro_grid
 
 
     subroutine cmpdt(dt)

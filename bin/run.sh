@@ -1,3 +1,4 @@
 #!/bin/bash
 ./compile.sh
-mpirun -np 2 hydro
+./hydro
+#mpirun -np 8 hydro

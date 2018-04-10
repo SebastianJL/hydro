@@ -14,28 +14,27 @@ program hydro_main
     real(kind = prec_real) :: dt, tps_elapsed, tps_cpu, t_deb, t_fin  !Question: What are these?
     integer(kind = prec_int) :: nbp_init, nbp_final, nbp_max, freq_p
 
-    ! Init mpi
+    ! Inititialize
     call mpi_init(ierror)
     call mpi_comm_size(mpi_comm_world, world_size, ierror)
     call mpi_comm_rank(mpi_comm_world, world_rank, ierror)
 
-    ! Initialize clock counter
     call system_clock(count_rate = freq_p, count_max = nbp_max)
     call system_clock(nbp_init)
     call cpu_time(t_deb)
 
-    ! Read run parameters
     call read_params
 
-    ! Prepare output directory
-    call prepare_output
+    if (world_rank == master) then
+        call prepare_output_directory
+    end if
+    call mpi_bcast(output_directory, len(output_directory), mpi_character, master, mpi_comm_world, ierror)
 
-    ! Initialize hydro grid
-    call init_hydro
+    call init_hydro_grid
 
-    print*, 'Starting time integration, nx = ', nx, ' ny = ', ny
 
     ! Main time loop
+    print*, 'Starting time integration, nx = ', nx, ' ny = ', ny
     do while (t < tend .and. nstep < nstepmax)
 
         ! Output results

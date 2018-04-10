@@ -2,13 +2,11 @@
 !! module_hydro_IO.f90 ---
 !!!!
 !! subroutine read_params
-!! subroutine prepare_output
+!! subroutine prepare_output_directory
 !! subroutine output
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 module hydro_IO
-
-    character(LEN = 80) :: dir  ! output directory
 
 contains
 
@@ -41,8 +39,11 @@ contains
         close(1)
     end subroutine read_params
 
-    subroutine prepare_output
+    subroutine prepare_output_directory
+        use hydro_commons
         use hydro_parameters
+        use hydro_mpi_vars
+        use mpi
 
         ! Local variables
         character(LEN = 5) :: char_nx, char_ny
@@ -53,16 +54,16 @@ contains
         call DATE_AND_TIME(date = date, time = time, zone = zone)
         call title(nx, char_nx)
         call title(ny, char_ny)
-        dir = '../output/output' &
+        output_directory = '../output/output' &
                 // '-' // date &
                 // '-' // time &
                 // '-' // zone &
                 // '-nx' // TRIM(char_nx) &
                 // '-ny' // TRIM(char_ny) &
                 // '/'
-        call SYSTEM('mkdir -p ' // ' ' // TRIM(dir))  !Question: Is this better than letting the master process do this?
-        call SYSTEM('cp ../input/input.nml ' // TRIM(dir))
-    end subroutine prepare_output
+        call SYSTEM('mkdir' // ' ' // TRIM(output_directory))  !Question: Is this better than letting the master process do this?
+        call SYSTEM('cp ../input/input.nml ' // TRIM(output_directory))
+    end subroutine prepare_output_directory
 
     subroutine output
         use hydro_commons
@@ -78,7 +79,7 @@ contains
         nout = nstep/noutput
         call title(nout, char)
         call title(MYPE, charpe)
-        filename = TRIM(dir) // 'output_' // TRIM(char) // '.' // TRIM(charpe)
+        filename = TRIM(output_directory) // 'output_' // TRIM(char) // '.' // TRIM(charpe)
         open(10, file = filename, form = 'unformatted')
         rewind(10)
         print*, 'Process ', world_rank, 'outputting array of size=', nx, ny, nvar
