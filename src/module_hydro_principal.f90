@@ -89,7 +89,7 @@ contains
         ! Dummy arguments
         real(kind = prec_real), intent(out) :: dt
         ! Local variables
-        integer(kind = prec_int) :: i, j
+        integer(kind = prec_int) :: i, j, datatype
         real(kind = prec_real) :: cournox, cournoy, eken, dt_send
         real(kind = prec_real), dimension(:, :), allocatable :: q
         real(kind = prec_real), dimension(:), allocatable :: e, c
@@ -122,7 +122,8 @@ contains
         deallocate(q, e, c)
 
         dt_send = courant_factor*dx/max(cournox, cournoy, smallc)
-        call mpi_allreduce(dt_send, dt, 1, mpi_double_precision, mpi_min, mpi_comm_world, ierror)  !Question: Why do I need mpi_double_precision?
+        call mpi_type_match_size(mpi_typeclass_real, prec_real, datatype, ierror)
+        call mpi_allreduce(dt_send, dt, 1, datatype, mpi_min, mpi_comm_world, ierror)  !Question: Why do I need mpi_double_precision?
     end subroutine cmpdt
 
 
