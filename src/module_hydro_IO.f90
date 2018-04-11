@@ -61,7 +61,7 @@ contains
                 // '-nx' // TRIM(char_nx) &
                 // '-ny' // TRIM(char_ny) &
                 // '/'
-        call SYSTEM('mkdir' // ' ' // TRIM(output_directory))  !Question: Is this better than letting the master process do this?
+        call SYSTEM('mkdir' // ' ' // TRIM(output_directory))
         call SYSTEM('cp ../input/input.nml ' // TRIM(output_directory))
     end subroutine prepare_output_directory
 
@@ -74,11 +74,11 @@ contains
         ! Local variables
         character(LEN = 80) :: filename
         character(LEN = 5) :: char, charpe
-        integer(kind = prec_int) :: nout, MYPE = 0
+        integer(kind = prec_int) :: nout
 
         nout = nstep/noutput
         call title(nout, char)
-        call title(MYPE, charpe)
+        call title(world_rank, charpe)
         filename = TRIM(output_directory) // 'output_' // TRIM(char) // '.' // TRIM(charpe)
         open(10, file = filename, form = 'unformatted')
         rewind(10)

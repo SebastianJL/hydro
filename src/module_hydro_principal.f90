@@ -33,7 +33,7 @@ contains
         jmax_local = world_rank*(ny)/world_size + 4 + (ny)/world_size
         jmax_local = min(jmax_local, jmax)
 
-        allocate(uold(imin:imax, jmin:jmax, 1:nvar)) !Question: What are these layers (1:nvar)?
+        allocate(uold(imin:imax, jmin:jmax, 1:nvar))
 
         ! Initial conditions in grid interior
         ! Warning: conservative variables U = (rho, rhou, rhov, E)
@@ -123,7 +123,7 @@ contains
 
         dt_send = courant_factor*dx/max(cournox, cournoy, smallc)
         call mpi_type_match_size(mpi_typeclass_real, prec_real, datatype, ierror)
-        call mpi_allreduce(dt_send, dt, 1, datatype, mpi_min, mpi_comm_world, ierror)  !Question: Why do I need mpi_double_precision?
+        call mpi_allreduce(dt_send, dt, 1, datatype, mpi_min, mpi_comm_world, ierror)
     end subroutine cmpdt
 
 

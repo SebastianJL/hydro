@@ -32,7 +32,7 @@ module hydro_parameters
     use hydro_precision
     integer(kind = prec_int) :: nx = 2
     integer(kind = prec_int) :: ny = 2
-    integer(kind = prec_int) :: nvar = 4  !QUESTION: What is this?
+    integer(kind = prec_int) :: nvar = 4
     real(kind = prec_real) :: dx = 1.0
     real(kind = prec_real) :: tend = 0.0
     real(kind = prec_real) :: gamma = 1.4d0
@@ -52,8 +52,11 @@ module hydro_parameters
 end module hydro_parameters
 
 module hydro_const
+    ! This is used so that "zero" always has the precision 'prec_real'.
+    ! Otherwise one would write 0, 0.0 or 0.0d which are all different
+    ! precisions.
     use hydro_precision
-    real(kind = prec_real) :: zero = 0.0  !Question: What the fuck?
+    real(kind = prec_real) :: zero = 0.0
     real(kind = prec_real) :: one = 1.0
     real(kind = prec_real) :: two = 2.0
     real(kind = prec_real) :: three = 3.0
