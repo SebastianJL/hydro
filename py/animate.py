@@ -23,6 +23,15 @@ def directory(arg: Any, parser: argparse.ArgumentParser = None):
         return str(arg)
 
 
+def read(filename: str) -> np.ndarray:
+    with FortranFile(filename, 'r') as f:
+        [t, gamma] = f.read_reals('f4')
+        [nx, ny, nvar, nstep] = f.read_ints('i')
+        dat = f.read_reals('f4')
+    dat = np.array(dat)
+    return dat.reshape(nvar, ny, nx)
+
+
 output_dir_prefix = 'output-'
 
 # parse cli arguments
@@ -32,10 +41,10 @@ parser.add_argument('-d', '--directory', type=lambda arg: directory(arg, parser)
 parser.add_argument('-o', '--outfile', type=str, default='animation.mp4',
                     help='filename for animation. also determines filetype through file extension (only mp4 fully \
                     supported')
-parser.add_argument('-f', '--format', type=str, default='output_{:05}.00000', help='file format for output files')
+parser.add_argument('-f', '--format', type=str, default='output_{:05}.{:05}', help='file format for output files')
 parser.add_argument('-l', '--latest', action='store_true',
                     help='attempt to use latest output directory based on lexicographical order. directory name has to \
-                    start with "{}"'.format(output_dir_prefix),
+                    start with "{}". animation is saved in said output directory'.format(output_dir_prefix),
                     dest='use_latest')
 parser.add_argument('-s', '--show', action='store_true',
                     help='show animation after saving. default when using option --no-save  ')
@@ -57,36 +66,39 @@ if args.use_latest:
         else:
             raise
     path = directory(dir) + args.format
+    args.outfile = directory(dir) + 'animation.mp4'
 else:
     path = args.dir + args.format
+print('file format pattern: {}'.format(path))
 
-map_files = []
-j = 0
-print('loading files with format pattern: {}'.format(path))
-while os.path.exists(path.format(j)):
-    map_files.append(path.format(j))
-    j += 1
-if j == 0:
-    print("no files found, exiting...")
-    exit()
+# determine num_cpu
+num_cpu = 0
+while True:
+    if not os.path.exists(path.format(0, num_cpu)):
+        break
+    num_cpu += 1
+print('found files from {} cpus'.format(num_cpu))
 
+# define figure
 dpi = 96
 fig = plt.figure(figsize=(800 / dpi, 800 / dpi), dpi=dpi)
+# fig = plt.figure()
 
+# read files
 print("reading image data from files...")
 frames = []
-for map_file in map_files:
-    with FortranFile(map_file, 'r') as f:
-        [t, gamma] = f.read_reals('f4')
-        [nx, ny, nvar, nstep] = f.read_ints('i')
-        dat = f.read_reals('f4')
-
-    dat = np.array(dat)
-    dat = dat.reshape(nvar, ny, nx)
+j = 0
+while os.path.exists(path.format(j, 0)):
+    master_file = path.format(j, 0)
+    master_data = read(master_file)
+    for i in range(1, num_cpu):
+        slave_file = path.format(j, i)
+        slave_data = read(slave_file)
+        master_data = np.hstack((master_data, slave_data))
 
     # plot the map
     img = plt.imshow(
-        np.log10(dat[0, :, :]),
+        np.log10(master_data[0, :, :]),
         interpolation='nearest',
         origin='lower',
         animated=True,
@@ -95,6 +107,11 @@ for map_file in map_files:
         vmax=1.5684958
     )
     frames.append([img])
+    j += 1
+
+if j == 0:
+    print("no files found, exiting...")
+    exit()
 
 # animate
 ani = animation.ArtistAnimation(fig, frames, interval=100, repeat_delay=100)
