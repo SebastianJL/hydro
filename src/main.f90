@@ -8,6 +8,7 @@ program hydro_main
     use hydro_IO
     use hydro_principal
     use hydro_mpi_vars
+    use hydro_mpi_datatypes
     use mpi
     implicit none
 
@@ -29,6 +30,8 @@ program hydro_main
         call prepare_output_directory
     end if
     call mpi_bcast(output_directory, len(output_directory), mpi_character, master, mpi_comm_world, ierror)
+
+    call init_mpi_datatypes
 
     call init_hydro_grid
 

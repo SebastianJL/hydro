@@ -28,6 +28,18 @@ module hydro_mpi_vars
     integer, parameter :: master = 0
 end module hydro_mpi_vars
 
+module hydro_mpi_datatypes
+    use hydro_precision
+    use hydro_mpi_vars
+    use mpi
+    integer :: prec_real_mpi_datatype
+
+    contains
+        subroutine init_mpi_datatypes
+            call mpi_type_match_size(mpi_typeclass_real, prec_real, prec_real_mpi_datatype, ierror)
+        end subroutine init_mpi_datatypes
+end module hydro_mpi_datatypes
+
 module hydro_parameters
     use hydro_precision
     integer(kind = prec_int) :: nx = 2
