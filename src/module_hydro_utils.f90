@@ -44,7 +44,7 @@ contains
                     else
                         i0 = nx + i
                     end if
-                    do j = jmin + 2, jmax - 2
+                    do j = jmin_local + 2, jmax_local - 2
                         uold(i, j, ivar) = uold(i0, j, ivar)*sign
                     end do
                 end do
@@ -62,7 +62,7 @@ contains
                     else
                         i0 = i - nx
                     end if
-                    do j = jmin + 2, jmax - 2
+                    do j = jmin_local + 2, jmax_local - 2
                         uold(i, j, ivar) = uold(i0, j, ivar)*sign
                     end do
                 end do

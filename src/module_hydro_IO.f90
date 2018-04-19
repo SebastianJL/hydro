@@ -74,7 +74,9 @@ contains
         ! Local variables
         character(LEN = 80) :: filename
         character(LEN = 5) :: char, charpe
-        integer(kind = prec_int) :: nout
+        integer(kind = prec_int) :: nout, y_width
+
+        y_width = jmax_local - jmin_local - 3
 
         nout = nstep/noutput
         call title(nout, char)
@@ -82,10 +84,10 @@ contains
         filename = TRIM(output_directory) // 'output_' // TRIM(char) // '.' // TRIM(charpe)
         open(10, file = filename, form = 'unformatted')
         rewind(10)
-        print*, 'Process ', world_rank, 'outputting array of size=', nx, ny, nvar
+        print*, 'Process ', world_rank, 'outputting array of size=', nx, y_width, nvar
         write(10)real(t, kind = prec_output), real(gamma, kind = prec_output)
-        write(10)nx, ny, nvar, nstep
-        write(10)real(uold(imin + 2:imax - 2, jmin + 2:jmax - 2, 1:nvar), kind = prec_output)
+        write(10)nx, y_width, nvar, nstep
+        write(10)real(uold(imin + 2:imax - 2, jmin_local + 2:jmax_local - 2, 1:nvar), kind = prec_output)
         close(10)
     end subroutine output
 

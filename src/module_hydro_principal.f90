@@ -33,13 +33,13 @@ contains
         jmax_local = world_rank*(ny)/world_size + 4 + (ny)/world_size
         jmax_local = min(jmax_local, jmax)
 
-        allocate(uold(imin:imax, jmin:jmax, 1:nvar))
+        allocate(uold(imin:imax, jmin_local:jmax_local, 1:nvar))
 
         ! Initial conditions in grid interior
         ! Warning: conservative variables U = (rho, rhou, rhov, E)
 
-        ! Wind tunnel with point explosion
-        do j = jmin + 2, jmax - 2
+        ! Wind tunnel
+        do j = jmin_local + 2, jmax_local - 2
             do i = imin + 2, imax - 2
                 uold(i, j, ID) = 1.0
                 uold(i, j, IU) = 0.0
@@ -47,7 +47,11 @@ contains
                 uold(i, j, IP) = 1.d-5
             end do
         end do
-        uold(imin + 2, jmin + 2, IP) = 1./dx/dx
+
+        ! Point explosion
+        if (world_rank == 0) then
+            uold(imin + 2, jmin_local + 2, IP) = 1./dx/dx
+        end if
     end subroutine init_hydro_grid
 
 
@@ -130,7 +134,7 @@ contains
             ! Allocate work space for 1D sweeps
             call allocate_work_space(imin, imax, nx + 1)
 
-            do j = jmin + 2, jmax - 2
+            do j = jmin_local + 2, jmax_local - 2
 
                 ! Gather conservative variables
                 do i = imin, imax
@@ -192,12 +196,12 @@ contains
         else
 
             ! Allocate work space for 1D sweeps
-            call allocate_work_space(jmin, jmax, ny + 1)
+            call allocate_work_space(jmin_local, jmax_local, ny + 1)
 
             do i = imin + 2, imax - 2
 
                 ! Gather conservative variables
-                do j = jmin, jmax
+                do j = jmin_local, jmax_local
                     u(j, ID) = uold(i, j, ID)
                     u(j, IU) = uold(i, j, IV)
                     u(j, IV) = uold(i, j, IU)
@@ -205,7 +209,7 @@ contains
                 end do
                 if(nvar>4)then
                     do in = 5, nvar
-                        do j = jmin, jmax
+                        do j = jmin_local, jmax_local
                             u(j, in) = uold(i, j, in)
                         end do
                     end do
@@ -234,7 +238,7 @@ contains
                 call cmpflx(qgdnv, flux)
 
                 ! Update conservative variables
-                do j = jmin + 2, jmax - 2
+                do j = jmin_local + 2, jmax_local - 2
                     uold(i, j, ID) = u(j, ID) + (flux(j - 2, ID) - flux(j - 1, ID))*dtdx
                     uold(i, j, IU) = u(j, IV) + (flux(j - 2, IV) - flux(j - 1, IV))*dtdx
                     uold(i, j, IV) = u(j, IU) + (flux(j - 2, IU) - flux(j - 1, IU))*dtdx
@@ -242,7 +246,7 @@ contains
                 end do
                 if(nvar>4)then
                     do in = 5, nvar
-                        do j = jmin + 2, jmax - 2
+                        do j = jmin_local + 2, jmax_local - 2
                             uold(i, j, in) = u(j, in) + (flux(j - 2, in) - flux(j - 1, in))*dtdx
                         end do
                     end do
