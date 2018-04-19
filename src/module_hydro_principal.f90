@@ -38,16 +38,6 @@ contains
         ! Initial conditions in grid interior
         ! Warning: conservative variables U = (rho, rhou, rhov, E)
 
-        !!$  ! Jet
-        !!$  do j=jmin+2,jmax-2
-        !!$     do i=imin+2,imax-2
-        !!$        uold(i,j,ID)=1.0
-        !!$        uold(i,j,IU)=0.0
-        !!$        uold(i,j,IV)=0.0
-        !!$        uold(i,j,IP)=1.0/(gamma-1.0)
-        !!$     end do
-        !!$  end do
-
         ! Wind tunnel with point explosion
         do j = jmin + 2, jmax - 2
             do i = imin + 2, imax - 2
@@ -58,22 +48,6 @@ contains
             end do
         end do
         uold(imin + 2, jmin + 2, IP) = 1./dx/dx
-
-        !!$  ! 1D Sod test
-        !!$  do j=jmin+2,jmax-2
-        !!$     do i=imin+2,imax/2
-        !!$        uold(i,j,ID)=1.0
-        !!$        uold(i,j,IU)=0.0
-        !!$        uold(i,j,IV)=0.0
-        !!$        uold(i,j,IP)=1.0/(gamma-1.0)
-        !!$     end do
-        !!$     do i=imax/2+1,imax-2
-        !!$        uold(i,j,ID)=0.125
-        !!$        uold(i,j,IU)=0.0
-        !!$        uold(i,j,IV)=0.0
-        !!$        uold(i,j,IP)=0.1/(gamma-1.0)
-        !!$     end do
-        !!$  end do
     end subroutine init_hydro_grid
 
 
