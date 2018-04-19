@@ -26,6 +26,9 @@ end module hydro_commons
 module hydro_mpi_vars
     integer :: world_rank, world_size, ierror  ! common mpi variables
     integer, parameter :: master = 0
+    enum, bind(c)
+        enumerator :: boundary_tag
+    end enum
 end module hydro_mpi_vars
 
 module hydro_mpi_datatypes

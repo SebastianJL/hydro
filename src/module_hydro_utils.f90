@@ -21,6 +21,7 @@ contains
         use hydro_commons
         use hydro_const
         use hydro_parameters
+        use hydro_mpi_vars
         implicit none
 
         ! Dummy arguments
@@ -28,8 +29,6 @@ contains
         ! Local variables
         integer(kind = prec_int) :: ivar, i, i0, j, j0
         real(kind = prec_real) :: sign
-        !!$ integer(kind=prec_int) :: ijet
-        !!$ real(kind=prec_real) :: djet,ujet,pjet
 
         if(idim==1)then
 
@@ -71,59 +70,125 @@ contains
 
         else
 
-            ! Lower boundary
-            do ivar = 1, nvar
-                do j = 1, 2
-                    sign = 1.0
-                    if(boundary_down==1)then
-                        j0 = 5 - j
-                        if(ivar==IV)sign = -1.0
-                    else if(boundary_down==2)then
-                        j0 = 3
-                    else
-                        j0 = ny + i
-                    end if
-                    do i = imin + 2, imax - 2
-                        uold(i, j, ivar) = uold(i, j0, ivar)*sign
+            ! Lowest boundary
+            if (world_rank == 0) then
+                do ivar = 1, nvar
+                    do j = 1, 2
+                        sign = 1.0
+                        if(boundary_down==1)then
+                            j0 = 5 - j
+                            if(ivar==IV)sign = -1.0
+                        else if(boundary_down==2)then
+                            j0 = 3
+                        else
+                            j0 = ny + i
+                        end if
+                        do i = imin + 2, imax - 2
+                            uold(i, j, ivar) = uold(i, j0, ivar)*sign
+                        end do
                     end do
                 end do
-            end do
 
-            !!$        djet=1.0
-            !!$        ujet=300.
-            !!$        pjet=1.0
-            !!$        ijet=imax-20
-            !!$        do ivar=1,nvar
-            !!$           do j=1,2
-            !!$              do i=ijet,imax-2
-            !!$                 uold(i,j,1)=djet
-            !!$                 uold(i,j,2)=0.
-            !!$                 uold(i,j,3)=djet*ujet
-            !!$                 uold(i,j,4)=pjet/(gamma-1)+0.5*djet*ujet**2
-            !!$              end do
-            !!$           end do
-            !!$        end do
-
-            ! Upper boundary
-            do ivar = 1, nvar
-                do j = ny + 3, ny + 4
-                    sign = 1.0
-                    if(boundary_up==1)then
-                        j0 = 2*ny + 5 - j
-                        if(ivar==IV)sign = -1.0
-                    else if(boundary_up==2)then
-                        j0 = ny + 2
-                    else
-                        j0 = j - ny
-                    end if
-                    do i = imin + 2, imax - 2
-                        uold(i, j, ivar) = uold(i, j0, ivar)*sign
+            ! Uppermost boundary
+            else if (world_rank == world_size-1) then
+                do ivar = 1, nvar
+                    do j = ny + 3, ny + 4
+                        sign = 1.0
+                        if(boundary_up==1)then
+                            j0 = 2*ny + 5 - j
+                            if(ivar==IV)sign = -1.0
+                        else if(boundary_up==2)then
+                            j0 = ny + 2
+                        else
+                            j0 = j - ny
+                        end if
+                        do i = imin + 2, imax - 2
+                            uold(i, j, ivar) = uold(i, j0, ivar)*sign
+                        end do
                     end do
                 end do
-            end do
+            end if
 
         end if
     end subroutine make_boundary
+
+    subroutine exchange_ghost_cells(idim)
+        use hydro_commons
+        use hydro_parameters
+        use hydro_mpi_vars
+        use hydro_mpi_datatypes
+        use mpi
+        implicit none
+
+        ! Dummy arguments
+        integer(kind = prec_int), intent(in) :: idim
+        ! Local variables
+        integer(kind = prec_int) :: ivar, i, i0, j, j0, x_width, y_width, count
+        real(kind = prec_real), dimension(:, :, :), allocatable :: send_buffer, recv_buffer
+
+        if (idim == 2) then
+            x_width = imax_local-imin_local+1
+            y_width = 2
+            count = x_width * y_width * nvar
+            allocate(send_buffer(x_width, y_width, nvar))
+            allocate(recv_buffer(x_width, y_width, nvar))
+
+            if (mod(world_rank, 2) == 0) then
+                if (world_rank /= world_size-1) then
+                    ! Send up
+                    send_buffer = uold(:, jmax_local-3:jmax_local-2, :)
+                    call mpi_send(send_buffer, count, prec_real_mpi_datatype, world_rank+1, boundary_tag, mpi_comm_world, &
+                            ierror)
+                    ! Recv up
+                    call mpi_recv(recv_buffer, count, prec_real_mpi_datatype, world_rank+1, boundary_tag, mpi_comm_world, &
+                            mpi_status_ignore, ierror)
+                    uold(:, jmax_local-1:jmax_local, :) = recv_buffer
+                end if
+
+                if (world_rank /= 0) then
+                    ! Send down
+                    send_buffer = uold(:, jmin_local+2:jmin_local+3, :)
+                    call mpi_send(send_buffer, count, prec_real_mpi_datatype, world_rank-1, boundary_tag, mpi_comm_world, &
+                            ierror)
+                    ! Recv down
+                    call mpi_recv(recv_buffer, count, prec_real_mpi_datatype, world_rank-1, boundary_tag, mpi_comm_world, &
+                            mpi_status_ignore, ierror)
+                    uold(:, jmin_local:jmin_local+1, :) = recv_buffer
+                end if
+
+            else if (mod(world_rank, 2) == 1) then
+                if (world_rank /= 0) then
+                    ! Recv down
+                    call mpi_recv(recv_buffer, count, prec_real_mpi_datatype, world_rank-1, boundary_tag, mpi_comm_world, &
+                            mpi_status_ignore, ierror)
+                    uold(:, jmin_local:jmin_local+1, :) = recv_buffer
+                    ! Send down
+                    send_buffer = uold(:, jmin_local+2:jmin_local+3, :)
+                    call mpi_send(send_buffer, count, prec_real_mpi_datatype, world_rank-1, boundary_tag, mpi_comm_world, &
+                            ierror)
+                end if
+
+                if (world_rank /= world_size-1) then
+                    ! Recv up
+                    call mpi_recv(recv_buffer, count, prec_real_mpi_datatype, world_rank+1, boundary_tag, mpi_comm_world, &
+                            mpi_status_ignore, ierror)
+                    uold(:, jmax_local-1:jmax_local, :) = recv_buffer
+                    ! Send up
+                    send_buffer = uold(:, jmax_local-3:jmax_local-2, :)
+                    call mpi_send(send_buffer, count, prec_real_mpi_datatype, world_rank+1, boundary_tag, mpi_comm_world, &
+                            ierror)
+                end if
+
+            else
+                call mpi_abort(mpi_comm_world, 1, ierror)
+            end if
+
+            deallocate(send_buffer)
+            deallocate(recv_buffer)
+        end if
+
+
+    end subroutine exchange_ghost_cells
 
 
     subroutine constoprim(u, q, c)
@@ -214,7 +279,7 @@ contains
         ijmax = size(c)
         ! compute slopes
         dq = zero
-        if (iorder .ne. 1) then
+        if (iorder /= 1) then
             call slope(q, dq)
         endif
 

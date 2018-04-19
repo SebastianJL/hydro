@@ -149,6 +149,8 @@ contains
         ! Update boundary conditions
         call make_boundary(idim)
 
+        call exchange_ghost_cells(idim)
+
         if (idim==1)then
 
             ! Allocate work space for 1D sweeps
