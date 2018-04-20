@@ -21,7 +21,7 @@ SRCDIR = ../src
 
 # Objects
 #------------
-OBJ = module_hydro_commun.o module_hydro_IO.o module_hydro_utils.o module_hydro_principal.o main.o
+OBJ = module_hydro_common.o module_hydro_IO.o module_hydro_utils.o module_hydro_principal.o main.o
 
 hydro:  $(OBJ)
 	$(F90) $(LDFLAGS) $(OBJ) -o hydro 

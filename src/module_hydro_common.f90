@@ -1,5 +1,5 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -*- Mode: F90 -*- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!! module_hydro_commun.f90 --- 
+!! module_hydro_common.f90 ---
 !!!!
 !! module hydro_precision
 !! module hydro_commons
