@@ -33,6 +33,9 @@ contains
         jmax_local = world_rank*(ny)/world_size + 4 + (ny)/world_size
         jmax_local = min(jmax_local, jmax)
 
+        nx_local = nx
+        ny_local = jmax_local - jmin_local - 3
+
         allocate(uold(imin:imax, jmin_local:jmax_local, 1:nvar))
 
         ! Initial conditions in grid interior
@@ -196,7 +199,7 @@ contains
         else
 
             ! Allocate work space for 1D sweeps
-            call allocate_work_space(jmin_local, jmax_local, ny + 1)
+            call allocate_work_space(jmin_local, jmax_local, ny_local + jmin_local)
 
             do i = imin + 2, imax - 2
 
@@ -222,7 +225,7 @@ contains
                 call trace(q, dq, c, qxm, qxp, dtdx)
 
                 do in = 1, nvar
-                    do j = 1, ny + 1
+                    do j = jmin_local, jmin_local + ny_local
                         qleft (j, in) = qxm(j + 1, in)
                         qright(j, in) = qxp(j + 2, in)
                     end do

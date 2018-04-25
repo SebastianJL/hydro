@@ -17,6 +17,7 @@ module hydro_commons
     use hydro_precision
     integer(kind = prec_int) :: imin, imax, jmin, jmax  ! Global grid indices
     integer :: imin_local, imax_local, jmin_local, jmax_local  ! Grid indices local to process
+    integer :: nx_local, ny_local  ! Local gridsize without ghost cells
     real(kind = prec_real), allocatable, dimension(:, :, :) :: uold  ! Grid
     real(kind = prec_real) :: t = 0.
     integer(kind = prec_int) :: nstep = 0
@@ -36,11 +37,55 @@ module hydro_mpi_datatypes
     use hydro_mpi_vars
     use mpi
     integer :: prec_real_mpi_datatype
+    integer :: lower_send_row, lower_recv_row
+    integer :: upper_send_row, upper_recv_row
 
     contains
         subroutine init_mpi_datatypes
+            integer :: ndims = rank(uold)
+            integer, dimension(:), allocatable :: sizes, subsizes, starts
+
+            allocate(sizes(ndims))
+            allocate(subsizes(ndims))
+            allocate(starts(ndims))
+
+            ! Create mpi_datatypes for sending and receiving ghost cells
+            sizes = [nx, ny, nvar]
+            subsizes = [nx, 2, nvar]
+
+            ! Lower send/recv rows
+            starts = [0, jmin_local + 2 - 1, 0]  ! Array indexing starting at 0 for mpi
+            call mpi_type_create_subarray(ndims, sizes, subsizes, starts, mpi_order_fortran, mpi_integer, &
+                    lower_send_row, ierror)
+            starts = [0, jmin_local - 1, 0]  ! Array indexing starting at 0 for mpi
+            call mpi_type_create_subarray(ndims, sizes, subsizes, starts, mpi_order_fortran, mpi_integer, &
+                    lower_recv_row, ierror)
+
+            ! Upper send/recv rows
+            starts = [0, jmax_local - 3 - 1, 0]  ! Array indexing starting at 0 for mpi
+            call mpi_type_create_subarray(ndims, sizes, subsizes, starts, mpi_order_fortran, mpi_integer, &
+                    upper_send_row, ierror)
+            starts = [0, jmax_local - 1 - 1, 0]  ! Array indexing starting at 0 for mpi
+            call mpi_type_create_subarray(ndims, sizes, subsizes, starts, mpi_order_fortran, mpi_integer, &
+                    upper_recv_row, ierror)
+
+            call mpi_type_commit(lower_send_row, ierror)
+            call mpi_type_commit(lower_recv_row, ierror)
+            call mpi_type_commit(upper_send_row, ierror)
+            call mpi_type_commit(upper_recv_row, ierror)
+
+            ! prec_real as mpi_datatype
             call mpi_type_match_size(mpi_typeclass_real, prec_real, prec_real_mpi_datatype, ierror)
+
+
         end subroutine init_mpi_datatypes
+
+        subroutine free_mpi_datatypes
+            call mpi_type_free(lower_recv_row, ierror)
+            call mpi_type_free(lower_send_row, ierror)
+            call mpi_type_free(upper_send_row, ierror)
+            call mpi_type_free(upper_recv_row, ierror)
+        end subroutine free_mpi_datatypes
 end module hydro_mpi_datatypes
 
 module hydro_parameters
@@ -119,18 +164,18 @@ contains
         allocate(qxm(ii1:ii2, 1:nvar))
         allocate(qxp(ii1:ii2, 1:nvar))
         allocate(c  (ii1:ii2))
-        allocate(qleft (1:ngrid, 1:nvar))
-        allocate(qright(1:ngrid, 1:nvar))
-        allocate(qgdnv (1:ngrid, 1:nvar))
-        allocate(flux  (1:ngrid, 1:nvar))
-        allocate(rl    (1:ngrid), ul   (1:ngrid), pl   (1:ngrid), cl    (1:ngrid))
-        allocate(rr    (1:ngrid), ur   (1:ngrid), pr   (1:ngrid), cr    (1:ngrid))
-        allocate(ro    (1:ngrid), uo   (1:ngrid), po   (1:ngrid), co    (1:ngrid))
-        allocate(rstar (1:ngrid), ustar(1:ngrid), pstar(1:ngrid), cstar (1:ngrid))
-        allocate(wl    (1:ngrid), wr   (1:ngrid), wo   (1:ngrid))
-        allocate(sgnm  (1:ngrid), spin (1:ngrid), spout(1:ngrid), ushock(1:ngrid))
-        allocate(frac  (1:ngrid), scr  (1:ngrid), delp (1:ngrid), pold  (1:ngrid))
-        allocate(ind   (1:ngrid), ind2 (1:ngrid))
+        allocate(qleft (ii1:ngrid, 1:nvar))
+        allocate(qright(ii1:ngrid, 1:nvar))
+        allocate(qgdnv (ii1:ngrid, 1:nvar))
+        allocate(flux  (ii1:ngrid, 1:nvar))
+        allocate(rl    (ii1:ngrid), ul   (ii1:ngrid), pl   (ii1:ngrid), cl    (ii1:ngrid))
+        allocate(rr    (ii1:ngrid), ur   (ii1:ngrid), pr   (ii1:ngrid), cr    (ii1:ngrid))
+        allocate(ro    (ii1:ngrid), uo   (ii1:ngrid), po   (ii1:ngrid), co    (ii1:ngrid))
+        allocate(rstar (ii1:ngrid), ustar(ii1:ngrid), pstar(ii1:ngrid), cstar (ii1:ngrid))
+        allocate(wl    (ii1:ngrid), wr   (ii1:ngrid), wo   (ii1:ngrid))
+        allocate(sgnm  (ii1:ngrid), spin (ii1:ngrid), spout(ii1:ngrid), ushock(ii1:ngrid))
+        allocate(frac  (ii1:ngrid), scr  (ii1:ngrid), delp (ii1:ngrid), pold  (ii1:ngrid))
+        allocate(ind   (ii1:ngrid), ind2 (ii1:ngrid))
     end subroutine allocate_work_space
 
     subroutine deallocate_work_space()
