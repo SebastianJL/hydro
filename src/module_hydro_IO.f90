@@ -7,6 +7,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 module hydro_IO
+    character(LEN = 80) :: infile
 
 contains
 
@@ -16,7 +17,6 @@ contains
 
         ! Local variables
         integer(kind = prec_int) :: narg, iargc
-        character(LEN = 80) :: infile
 
         ! Namelists
         namelist/run/nstepmax, tend, noutput
@@ -24,13 +24,6 @@ contains
         namelist/hydro/gamma, courant_factor, smallr, smallc, niter_riemann, &
                 &         iorder, scheme, slope_type
 
-        !   narg = iargc()
-        !   IF(narg .NE. 1)THEN
-        !      write(*,*)'You should type: a.out input.nml'
-        !      write(*,*)'File input.nml should contain a parameter namelist'
-        !      STOP
-        !   END IF
-        !   CALL getarg(1,infile)
         infile = "../input/input.nml"
         open(1, file = infile)
         read(1, NML = run)
@@ -62,7 +55,7 @@ contains
                 // '-ny' // TRIM(char_ny) &
                 // '/'
         call SYSTEM('mkdir' // ' ' // TRIM(output_directory))
-        call SYSTEM('cp ../input/input.nml ' // TRIM(output_directory))
+        call SYSTEM('cp ' // infile // ' ' // TRIM(output_directory))
     end subroutine prepare_output_directory
 
     subroutine output
