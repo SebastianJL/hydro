@@ -12,7 +12,7 @@ program hydro_main
     use mpi
     implicit none
 
-    real(kind = prec_real) :: dt, tps_elapsed, tps_cpu, t_deb, t_fin  !Question: What are these?
+    real(kind = prec_real) :: dt, wtime, tps_cpu, t_start, t_end
     integer(kind = prec_int) :: nbp_init, nbp_final, nbp_max, freq_p
 
     ! Inititialize
@@ -22,7 +22,7 @@ program hydro_main
 
     call system_clock(count_rate = freq_p, count_max = nbp_max)
     call system_clock(nbp_init)
-    call cpu_time(t_deb)
+    call cpu_time(t_start)
 
     call read_params
 
@@ -70,16 +70,17 @@ program hydro_main
     call output
 
     ! Timing
-    call cpu_time(t_fin)
+    call cpu_time(t_end)
+    tps_cpu = t_end - t_start
+    call mpi_barrier(mpi_comm_world, ierror)
     call system_clock(nbp_final)
-    tps_cpu = t_fin - t_deb
     if (nbp_final>nbp_init) then
-        tps_elapsed = real(nbp_final - nbp_init)/real(freq_p)
+        wtime = real(nbp_final - nbp_init)/real(freq_p)
     else
-        tps_elapsed = real(nbp_final - nbp_init + nbp_max)/real(freq_p)
+        wtime = real(nbp_final - nbp_init + nbp_max)/real(freq_p)
     endif
     print *, 'Temps CPU (s.)     : ', tps_cpu
-    print *, 'Temps elapsed (s.) : ', tps_elapsed
+    print *, 'Temps elapsed (s.) : ', wtime
 
     call mpi_finalize(ierror)
 
