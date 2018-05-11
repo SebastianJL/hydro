@@ -79,8 +79,12 @@ program hydro_main
     else
         wtime = real(nbp_final - nbp_init + nbp_max)/real(freq_p)
     endif
-    print *, 'Temps CPU (s.)     : ', tps_cpu
-    print *, 'Temps elapsed (s.) : ', wtime
+
+    write(*, "(A, I04, A, F7.4)") 'CPU ', world_rank, ' Time [s]     : ', tps_cpu
+    call mpi_barrier(mpi_comm_world, ierror)
+    if (world_rank == master) then
+        write(*, "(A, F7.4)") 'Walltime [s]          : ', wtime
+    end if
 
     call mpi_finalize(ierror)
 
