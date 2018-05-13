@@ -43,18 +43,22 @@ contains
         character(LEN = 8) :: date
         character(LEN = 10) :: time
         character(LEN = 5) :: zone
+        integer :: status
 
-        call DATE_AND_TIME(date = date, time = time, zone = zone)
-        call title(nx, char_nx)
-        call title(ny, char_ny)
-        output_directory = '../output/output' &
-                // '-' // date &
-                // '-' // time &
-                // '-' // zone &
-                // '-nx' // TRIM(char_nx) &
-                // '-ny' // TRIM(char_ny) &
-                // '/'
-        call SYSTEM('mkdir' // ' ' // TRIM(output_directory))
+        status = 1
+        do while (.not. status == 0)
+            call DATE_AND_TIME(date = date, time = time, zone = zone)
+            call title(nx, char_nx)
+            call title(ny, char_ny)
+            output_directory = '../output/output' &
+                    // '-' // date &
+                    // '-' // time &
+                    // '-' // zone &
+                    // '-nx' // TRIM(char_nx) &
+                    // '-ny' // TRIM(char_ny) &
+                    // '/'
+            call SYSTEM('mkdir' // ' ' // TRIM(output_directory), status)
+        end do
         call SYSTEM('cp ' // infile // ' ' // TRIM(output_directory))
     end subroutine prepare_output_directory
 
