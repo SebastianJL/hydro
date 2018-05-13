@@ -43,6 +43,7 @@ module hydro_mpi_datatypes
 
     contains
         subroutine init_mpi_datatypes
+            use hydro_parameters
             integer :: ndims = rank(uold)
             integer, dimension(:), allocatable :: sizes, subsizes, starts
 
