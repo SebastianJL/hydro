@@ -31,10 +31,9 @@ program hydro_main
     end if
     call mpi_bcast(output_directory, len(output_directory), mpi_character, master, mpi_comm_world, ierror)
 
-!    call init_mpi_datatypes
-
     call init_hydro_grid
 
+    call init_mpi_datatypes
 
     ! Main time loop
     print*, 'Starting time integration, nx = ', nx, ' ny = ', ny

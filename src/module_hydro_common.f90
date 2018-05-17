@@ -33,63 +33,6 @@ module hydro_mpi_vars
     end enum
 end module hydro_mpi_vars
 
-module hydro_mpi_datatypes
-    use hydro_precision
-    use hydro_mpi_vars
-    use mpi
-    integer :: prec_real_mpi_datatype
-    integer :: lower_send_row, lower_recv_row
-    integer :: upper_send_row, upper_recv_row
-
-    contains
-        subroutine init_mpi_datatypes
-            use hydro_parameters
-            integer :: ndims = rank(uold)
-            integer, dimension(:), allocatable :: sizes, subsizes, starts
-
-            allocate(sizes(ndims))
-            allocate(subsizes(ndims))
-            allocate(starts(ndims))
-
-            ! Create mpi_datatypes for sending and receiving ghost cells
-            sizes = [nx, ny, nvar]
-            subsizes = [nx, 2, nvar]
-
-            ! Lower send/recv rows
-            starts = [0, jmin_local + 2 - 1, 0]  ! Array indexing starting at 0 for mpi
-            call mpi_type_create_subarray(ndims, sizes, subsizes, starts, mpi_order_fortran, mpi_integer, &
-                    lower_send_row, ierror)
-            starts = [0, jmin_local - 1, 0]  ! Array indexing starting at 0 for mpi
-            call mpi_type_create_subarray(ndims, sizes, subsizes, starts, mpi_order_fortran, mpi_integer, &
-                    lower_recv_row, ierror)
-
-            ! Upper send/recv rows
-            starts = [0, jmax_local - 3 - 1, 0]  ! Array indexing starting at 0 for mpi
-            call mpi_type_create_subarray(ndims, sizes, subsizes, starts, mpi_order_fortran, mpi_integer, &
-                    upper_send_row, ierror)
-            starts = [0, jmax_local - 1 - 1, 0]  ! Array indexing starting at 0 for mpi
-            call mpi_type_create_subarray(ndims, sizes, subsizes, starts, mpi_order_fortran, mpi_integer, &
-                    upper_recv_row, ierror)
-
-            call mpi_type_commit(lower_send_row, ierror)
-            call mpi_type_commit(lower_recv_row, ierror)
-            call mpi_type_commit(upper_send_row, ierror)
-            call mpi_type_commit(upper_recv_row, ierror)
-
-            ! prec_real as mpi_datatype
-            call mpi_type_match_size(mpi_typeclass_real, prec_real, prec_real_mpi_datatype, ierror)
-
-
-        end subroutine init_mpi_datatypes
-
-        subroutine free_mpi_datatypes
-            call mpi_type_free(lower_recv_row, ierror)
-            call mpi_type_free(lower_send_row, ierror)
-            call mpi_type_free(upper_send_row, ierror)
-            call mpi_type_free(upper_recv_row, ierror)
-        end subroutine free_mpi_datatypes
-end module hydro_mpi_datatypes
-
 module hydro_parameters
     use hydro_precision
     integer(kind = prec_int) :: nx = 2
@@ -112,6 +55,62 @@ module hydro_parameters
     integer(kind = prec_int) :: noutput = 100
     integer(kind = prec_int) :: nstepmax = 1000000
 end module hydro_parameters
+
+module hydro_mpi_datatypes
+    use hydro_precision
+    use hydro_mpi_vars
+    use mpi
+    integer :: prec_real_mpi_datatype
+    integer :: lower_send_row, lower_recv_row
+    integer :: upper_send_row, upper_recv_row
+
+    contains
+        subroutine init_mpi_datatypes
+            use hydro_commons
+            use hydro_parameters
+            integer :: ndims = rank(uold)
+            integer, dimension(:), allocatable :: sizes, subsizes, starts
+
+!            allocate(sizes(ndims))
+!            allocate(subsizes(ndims))
+!            allocate(starts(ndims))
+!
+!            ! Create mpi_datatypes for sending and receiving ghost cells
+!            sizes = [nx, ny, nvar]
+!            subsizes = [nx, 2, nvar]
+!
+!            ! Lower send/recv rows
+!            starts = [0, jmin_local + 2 - 1, 0]  ! Array indexing starting at 0 for mpi
+!            call mpi_type_create_subarray(ndims, sizes, subsizes, starts, mpi_order_fortran, mpi_integer, &
+!                    lower_send_row, ierror)
+!            starts = [0, jmin_local - 1, 0]  ! Array indexing starting at 0 for mpi
+!            call mpi_type_create_subarray(ndims, sizes, subsizes, starts, mpi_order_fortran, mpi_integer, &
+!                    lower_recv_row, ierror)
+!
+!            ! Upper send/recv rows
+!            starts = [0, jmax_local - 3 - 1, 0]  ! Array indexing starting at 0 for mpi
+!            call mpi_type_create_subarray(ndims, sizes, subsizes, starts, mpi_order_fortran, mpi_integer, &
+!                    upper_send_row, ierror)
+!            starts = [0, jmax_local - 1 - 1, 0]  ! Array indexing starting at 0 for mpi
+!            call mpi_type_create_subarray(ndims, sizes, subsizes, starts, mpi_order_fortran, mpi_integer, &
+!                    upper_recv_row, ierror)
+!
+!            call mpi_type_commit(lower_send_row, ierror)
+!            call mpi_type_commit(lower_recv_row, ierror)
+!            call mpi_type_commit(upper_send_row, ierror)
+!            call mpi_type_commit(upper_recv_row, ierror)
+
+            ! prec_real as mpi_datatype
+            call mpi_type_match_size(mpi_typeclass_real, prec_real, prec_real_mpi_datatype, ierror)
+        end subroutine init_mpi_datatypes
+
+        subroutine free_mpi_datatypes
+            call mpi_type_free(lower_recv_row, ierror)
+            call mpi_type_free(lower_send_row, ierror)
+            call mpi_type_free(upper_send_row, ierror)
+            call mpi_type_free(upper_recv_row, ierror)
+        end subroutine free_mpi_datatypes
+end module hydro_mpi_datatypes
 
 module hydro_const
     ! This is used so that "zero" always has the precision 'prec_real'.
