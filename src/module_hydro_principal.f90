@@ -30,8 +30,11 @@ contains
         imin_local = imin
         imax_local = imax
         jmin_local = world_rank*(ny)/world_size + 1
-        jmax_local = world_rank*(ny)/world_size + 4 + (ny)/world_size
-        jmax_local = min(jmax_local, jmax)
+        if (world_rank == world_size - 1) then  ! If last process
+            jmax_local = jmax
+        else
+            jmax_local = world_rank*(ny)/world_size + 4 + (ny)/world_size
+        end if
 
         nx_local = nx
         ny_local = jmax_local - jmin_local - 3
