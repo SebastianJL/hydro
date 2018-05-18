@@ -57,9 +57,9 @@ contains
                     // '-nx' // TRIM(char_nx) &
                     // '-ny' // TRIM(char_ny) &
                     // '/'
-            call SYSTEM('mkdir' // ' ' // TRIM(output_directory), status)
+            call execute_command_line('mkdir' // ' ' // TRIM(output_directory), wait=.true., exitstat=status)
         end do
-        call SYSTEM('cp ' // infile // ' ' // TRIM(output_directory))
+        call execute_command_line('cp ' // infile // ' ' // TRIM(output_directory))
     end subroutine prepare_output_directory
 
     subroutine output
