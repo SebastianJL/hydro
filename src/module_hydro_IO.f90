@@ -39,7 +39,7 @@ contains
         use mpi
 
         ! Local variables
-        character(LEN = 5) :: char_nx, char_ny
+        character(LEN = 5) :: char_nx, char_ny, char_ncpu
         character(LEN = 8) :: date
         character(LEN = 10) :: time
         character(LEN = 5) :: zone
@@ -49,11 +49,13 @@ contains
         status = 1
         do while (.not. status == 0)
             call DATE_AND_TIME(date = date, time = time, zone = zone)
+            call title(world_size, char_ncpu)
             call title(nx, char_nx)
             call title(ny, char_ny)
             output_directory = '../output/output' &
-                    // '-nx' // TRIM(char_nx) &
-                    // '-ny' // TRIM(char_ny) &
+                    // '-ncpu:' // TRIM(char_ncpu) &
+                    // '-nx:' // TRIM(char_nx) &
+                    // '-ny:' // TRIM(char_ny) &
                     // '-' // date &
                     // '-' // time &
                     // '-' // zone &
