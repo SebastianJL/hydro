@@ -36,7 +36,7 @@ program hydro_main
     call init_mpi_datatypes
 
     ! Main time loop
-    print*, 'Starting time integration, nx = ', nx, ' ny = ', ny
+!    print*, 'Starting time integration, nx = ', nx, ' ny = ', ny
     do while (t < tend .and. nstep < nstepmax)
 
         ! Output results
