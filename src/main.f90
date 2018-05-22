@@ -12,7 +12,7 @@ program hydro_main
     use mpi
     implicit none
 
-    real(kind = prec_real) :: dt, wtime, tps_cpu, t_start, t_end
+    real(kind = prec_real) :: dt, walltime, cputime, t_start, t_end
     integer(kind = prec_int) :: nbp_init, nbp_final, nbp_max, freq_p
 
     ! Inititialize
@@ -70,19 +70,23 @@ program hydro_main
 
     ! Timing
     call cpu_time(t_end)
-    tps_cpu = t_end - t_start
+    cputime = t_end - t_start
     call mpi_barrier(mpi_comm_world, ierror)
     call system_clock(nbp_final)
     if (nbp_final>nbp_init) then
-        wtime = real(nbp_final - nbp_init)/real(freq_p)
+        walltime = real(nbp_final - nbp_init)/real(freq_p)
     else
-        wtime = real(nbp_final - nbp_init + nbp_max)/real(freq_p)
+        walltime = real(nbp_final - nbp_init + nbp_max)/real(freq_p)
     endif
 
 !    write(*, "(A, I04, A, F7.4)") 'CPU ', world_rank, ' Time [s]     : ', cputime
     call mpi_barrier(mpi_comm_world, ierror)
     if (world_rank == master) then
-        write(*, "(A, F7.4)") 'Walltime [s]          : ', wtime
+        write(*, "(A, F7.4)") 'Walltime [s]          : ', walltime
+        open(10, file = trim(output_directory) // 'timing', form = 'unformatted')
+        rewind(10)
+        write(10)real(cputime, kind = prec_output), real(walltime, kind = prec_output)
+        close(10)
     end if
 
     call mpi_finalize(ierror)
