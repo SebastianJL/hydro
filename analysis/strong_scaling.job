@@ -1,16 +1,22 @@
 #!/bin/bash -l
-#SBATCH --job-name=jobjob
+#SBATCH --job-name=strong_scaling
 #SBATCH --account=uzh8
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=johannes.lade@uzh.ch
-#SBATCH --time=00:10:00
+#SBATCH --time=12:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-core=1
 #SBATCH --ntasks-per-node=36
 #SBATCH --cpus-per-task=1
-#SBATCH --partition=debug
+#SBATCH --partition=normal
 #SBATCH --constraint=mc
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-srun ../bin/hydro
+for i in `seq 1 1000`; do
+    for n in `seq 1 36`; do
+        echo "srun --ntasks=${n} ../bin/hydro"
+        srun --ntasks=${n} ../bin/hydro
+        echo
+    done
+done

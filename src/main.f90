@@ -12,7 +12,7 @@ program hydro_main
     use mpi
     implicit none
 
-    real(kind = prec_real) :: dt, walltime, cputime, t_start, t_end
+    real(kind = prec_real) :: dt, walltime, cputime, cputime_mean, t_start, t_end
     integer(kind = prec_int) :: nbp_init, nbp_final, nbp_max, freq_p
 
     ! Inititialize
@@ -71,6 +71,8 @@ program hydro_main
     ! Timing
     call cpu_time(t_end)
     cputime = t_end - t_start
+    call mpi_reduce(cputime, cputime_mean, 1, prec_real_mpi_datatype, mpi_sum, master, mpi_comm_world, ierror)
+    cputime_mean = cputime_mean / world_size
     call mpi_barrier(mpi_comm_world, ierror)
     call system_clock(nbp_final)
     if (nbp_final>nbp_init) then
@@ -83,9 +85,10 @@ program hydro_main
     call mpi_barrier(mpi_comm_world, ierror)
     if (world_rank == master) then
         write(*, "(A, F7.4)") 'Walltime [s]          : ', walltime
-        open(10, file = trim(output_directory) // 'timing', form = 'unformatted')
+        open(10, file = trim(output_directory) // 'run_data', form = 'unformatted')
         rewind(10)
-        write(10)real(cputime, kind = prec_output), real(walltime, kind = prec_output)
+        write(10)real(cputime_mean, kind = prec_output), real(walltime, kind = prec_output)
+        write(10)world_size, nx, ny
         close(10)
     end if
 

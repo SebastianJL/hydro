@@ -1,7 +1,7 @@
 This namelist contains various input parameters for HYDRO runs
 
 &RUN
-tend=50
+tend=50.0
 noutput=50
 /
 

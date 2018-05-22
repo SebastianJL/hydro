@@ -7,7 +7,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 module hydro_IO
-    character(LEN = 80) :: infile
+    character(LEN = 1000) :: infile
 
 contains
 
@@ -53,12 +53,12 @@ contains
             call title(nx, char_nx)
             call title(ny, char_ny)
             output_directory = '../output/output' &
-                    // '-ncpu:' // TRIM(char_ncpu) &
-                    // '-nx:' // TRIM(char_nx) &
-                    // '-ny:' // TRIM(char_ny) &
                     // '-' // date &
                     // '-' // time &
                     // '-' // zone &
+                    // '-ncpu:' // TRIM(char_ncpu) &
+                    // '-nx:' // TRIM(char_nx) &
+                    // '-ny:' // TRIM(char_ny) &
                     // '/'
             command = 'mkdir ' // TRIM(output_directory)
             call execute_command_line(command, wait=.true., exitstat=status)
@@ -74,7 +74,7 @@ contains
         implicit none
 
         ! Local variables
-        character(LEN = 80) :: filename
+        character(LEN = 1000) :: filename
         character(LEN = 5) :: char, charpe
         integer(kind = prec_int) :: nout
 

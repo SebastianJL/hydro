@@ -21,7 +21,7 @@ module hydro_commons
     real(kind = prec_real), allocatable, dimension(:, :, :) :: uold  ! Grid
     real(kind = prec_real) :: t = 0.
     integer(kind = prec_int) :: nstep = 0
-    character(LEN = 80) :: output_directory
+    character(LEN = 1000) :: output_directory
 end module hydro_commons
 
 module hydro_mpi_vars
