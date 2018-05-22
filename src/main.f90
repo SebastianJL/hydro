@@ -61,7 +61,7 @@ program hydro_main
 
         nstep = nstep + 1
         t = t + dt
-        write(*, '("step=",I6," t=",1pe10.3," dt=",1pe10.3)')nstep, t, dt
+!        write(*, '("step=",I6," t=",1pe10.3," dt=",1pe10.3)')nstep, t, dt
 
     end do
 
@@ -79,7 +79,7 @@ program hydro_main
         wtime = real(nbp_final - nbp_init + nbp_max)/real(freq_p)
     endif
 
-    write(*, "(A, I04, A, F7.4)") 'CPU ', world_rank, ' Time [s]     : ', tps_cpu
+!    write(*, "(A, I04, A, F7.4)") 'CPU ', world_rank, ' Time [s]     : ', cputime
     call mpi_barrier(mpi_comm_world, ierror)
     if (world_rank == master) then
         write(*, "(A, F7.4)") 'Walltime [s]          : ', wtime

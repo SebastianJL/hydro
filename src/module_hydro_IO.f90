@@ -82,7 +82,7 @@ contains
         filename = TRIM(output_directory) // 'output_' // TRIM(char) // '.' // TRIM(charpe)
         open(10, file = filename, form = 'unformatted')
         rewind(10)
-        print*, 'Process ', world_rank, 'outputting array of size=', nx_local, ny_local, nvar
+!        print*, 'Process ', world_rank, 'outputting array of size=', nx_local, ny_local, nvar
         write(10)real(t, kind = prec_output), real(gamma, kind = prec_output)
         write(10)nx_local, ny_local, nvar, nstep
         write(10)real(uold(imin + 2:imax - 2, jmin_local + 2:jmax_local - 2, 1:nvar), kind = prec_output)
