@@ -43,6 +43,7 @@ contains
         character(LEN = 8) :: date
         character(LEN = 10) :: time
         character(LEN = 5) :: zone
+        character(LEN = 100) :: command
         integer :: status
 
         status = 1
@@ -51,15 +52,17 @@ contains
             call title(nx, char_nx)
             call title(ny, char_ny)
             output_directory = '../output/output' &
+                    // '-nx' // TRIM(char_nx) &
+                    // '-ny' // TRIM(char_ny) &
                     // '-' // date &
                     // '-' // time &
                     // '-' // zone &
-                    // '-nx' // TRIM(char_nx) &
-                    // '-ny' // TRIM(char_ny) &
                     // '/'
-            call execute_command_line('mkdir' // ' ' // TRIM(output_directory), wait=.true., exitstat=status)
+            command = 'mkdir ' // TRIM(output_directory)
+            call execute_command_line(command, wait=.true., exitstat=status)
         end do
-        call execute_command_line('cp ' // infile // ' ' // TRIM(output_directory))
+        command = 'cp ' // TRIM(infile) // ' ' // TRIM(output_directory)
+        call execute_command_line(command)
     end subroutine prepare_output_directory
 
     subroutine output
