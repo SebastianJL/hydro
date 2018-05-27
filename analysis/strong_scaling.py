@@ -9,7 +9,7 @@ def to_array(*args):
 
 # Retrieve Data
 output = Path('../output')
-directories = (x for x in output.iterdir() if x.is_dir() and x.name.startswith('output-'))
+directories = [x for x in output.iterdir() if x.is_dir() and x.name.startswith('output-')]
 times = {}
 for directory in directories:
     try:
