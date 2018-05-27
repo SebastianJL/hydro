@@ -35,6 +35,7 @@ contains
     subroutine prepare_output_directory
         use hydro_commons
         use hydro_parameters
+        use hydro_command_arguments
         use hydro_mpi_vars
         use mpi
 
@@ -46,7 +47,8 @@ contains
         character(LEN = 100) :: command
         integer :: status
 
-        status = 1
+        ! Retrieve output directory from command line if given else create.
+        call get_command_argument(arg_out, output_directory, status=status)
         do while (.not. status == 0)
             call DATE_AND_TIME(date = date, time = time, zone = zone)
             call title(world_size, char_ncpu)
@@ -63,6 +65,7 @@ contains
             command = 'mkdir ' // TRIM(output_directory)
             call execute_command_line(command, wait=.true., exitstat=status)
         end do
+        call unix_directory(output_directory)
         command = 'cp ' // TRIM(infile) // ' ' // TRIM(output_directory)
         call execute_command_line(command)
     end subroutine prepare_output_directory
@@ -120,5 +123,17 @@ contains
             nchar = '0000' // nchar1
         endif
     end subroutine title
+
+    subroutine unix_directory(dir)
+        ! Dummy variables
+        character(len = *), intent(inout) :: dir
+        ! Local variables
+        integer :: l
+
+        l = len(trim(dir))
+        if (.not. dir(l:l) == '/') then
+            dir = trim(dir) // '/'
+        end if
+    end subroutine unix_directory
 
 end module hydro_IO

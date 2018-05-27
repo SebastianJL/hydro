@@ -33,6 +33,12 @@ module hydro_mpi_vars
     end enum
 end module hydro_mpi_vars
 
+module hydro_command_arguments
+    enum, bind(c)
+        enumerator :: arg_out = 1
+    end enum
+end module hydro_command_arguments
+
 module hydro_parameters
     use hydro_precision
     integer(kind = prec_int) :: nx = 2
