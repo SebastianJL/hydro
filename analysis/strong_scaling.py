@@ -4,16 +4,18 @@ import numpy as np
 from scipy.io import FortranFile
 import matplotlib.pyplot as plt
 
+
 def to_array(*args):
     return (np.array(x) for x in args)
 
+
 # Retrieve Data
-output = Path('../output')
-directories = [x for x in output.iterdir() if x.is_dir() and x.name.startswith('output-')]
+output = Path.cwd().parent / 'output/'
+out_files = [x for x in output.iterdir() if x.is_file() and x.name.startswith('run_data-')]
 times = {}
-for directory in directories:
+for out in out_files:
     try:
-        with FortranFile(str(directory / 'run_data'), 'r') as f:
+        with FortranFile(str(out), 'r') as f:
             cputime, walltime = f.read_reals('f4')
             ncpu, nx, ny = f.read_ints('i')
             times.setdefault(ncpu, []).append([cputime, walltime])
