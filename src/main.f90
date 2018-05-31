@@ -85,10 +85,10 @@ program hydro_main
     call mpi_barrier(mpi_comm_world, ierror)
     if (world_rank == master) then
         write(*, "(A, F7.4)") 'Walltime [s]          : ', walltime
-        open(10, file = trim(output_directory) // 'run_data', form = 'unformatted')
+        open(10, file = trim(output_directory) // 'run_data' // timestamp, form = 'unformatted')
         rewind(10)
-        write(10)real(cputime_mean, kind = prec_output), real(walltime, kind = prec_output)
-        write(10)world_size, nx, ny
+        write(10) real(cputime_mean, kind = prec_output), real(walltime, kind = prec_output)
+        write(10) world_size, nx, ny
         close(10)
     end if
 

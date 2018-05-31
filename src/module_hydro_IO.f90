@@ -47,17 +47,19 @@ contains
         character(LEN = 100) :: command
         integer :: status
 
+        call DATE_AND_TIME(date = date, time = time, zone = zone)
+        timestamp = '-' // date &
+                // '-' // time &
+                // '-' // zone
+
         ! Retrieve output directory from command line if given else create.
         call get_command_argument(arg_out, output_directory, status=status)
         do while (.not. status == 0)
-            call DATE_AND_TIME(date = date, time = time, zone = zone)
             call title(world_size, char_ncpu)
             call title(nx, char_nx)
             call title(ny, char_ny)
             output_directory = '../output/output' &
-                    // '-' // date &
-                    // '-' // time &
-                    // '-' // zone &
+                    // trim(timestamp) &
                     // '-ncpu:' // TRIM(char_ncpu) &
                     // '-nx:' // TRIM(char_nx) &
                     // '-ny:' // TRIM(char_ny) &
