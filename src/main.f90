@@ -84,7 +84,7 @@ program hydro_main
 !    write(*, "(A, I04, A, F7.4)") 'CPU ', world_rank, ' Time [s]     : ', cputime
     call mpi_barrier(mpi_comm_world, ierror)
     if (world_rank == master) then
-        write(*, "(A, F7.4)") 'Walltime [s]          : ', walltime
+        write(*, "(A, F8.4)") 'Walltime [s]          : ', walltime
         open(10, file = trim(output_directory) // 'run_data' // timestamp, form = 'unformatted')
         rewind(10)
         write(10) real(cputime_mean, kind = prec_output), real(walltime, kind = prec_output)
