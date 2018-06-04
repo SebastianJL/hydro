@@ -4,7 +4,7 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=johannes.lade@uzh.ch
 #SBATCH --time=12:00:00
-#SBATCH --nodes=2
+#SBATCH --nodes=1
 #SBATCH --ntasks-per-core=1
 #SBATCH --ntasks-per-node=36
 #SBATCH --cpus-per-task=1
@@ -13,10 +13,13 @@
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
+rm ../output/*
+
 for i in `seq 1 10`; do
-    for n in `seq 1 72`; do
-        echo "srun --ntasks=${n} ../bin/hydro ../output/"
-        srun --ntasks=${n} ../bin/hydro
+    for n in `seq 1 36`; do
+        command="srun --ntasks=${n} ../bin/hydro ../output/"
+        echo ${command}
+        eval ${command}
         echo
     done
 done
