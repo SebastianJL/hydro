@@ -23,7 +23,7 @@ if __name__ == '__main__':
                      if file.name.startswith('strong_scaling-')
                      and file.name.endswith('.out'))
     else:
-        infile = args.input_file
+        infile = Path(args.input_file)
 
     with open(str(infile), 'r') as sf:
         lines = sf.readlines()
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     max_ncpu = int(max_ncpu.partition('=')[2])
 
     data = zip(it.islice(lines, None, None, 3), it.islice(lines, 1, None, 3))
-    data = it.takewhile(lambda line: line[0].startswith('srun'), data)
+    data = it.takewhile(lambda line: line[0].startswith('srun') and line[1].startswith('Walltime'), data)
     times_by_ncpus = dict()
     for line in data:
         ncpu = int(line[0].partition('=')[2].partition(' ..')[0])
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     plt.subplot(122)
     plt.errorbar(ncpus, wall_speedup, wall_speedup_err, label='wall speedup')
     plt.plot(ncpus, model(ncpus, *popt),
-             label=r'lstsqr fit $\alpha=({:.4f}\pm{:.4f})\%$'.format(popt[0] * 100, pcov[0, 0] * 100))
+             label=r'lstsqr fit $\alpha=({:.4f} \pm {:.4f})\%$'.format(popt[0] * 100, pcov[0, 0] * 100))
     plt.plot(ncpus, ncpus, label='ideal speedup')
     plt.legend()
     plt.xlabel('ncpu')
@@ -81,4 +81,4 @@ if __name__ == '__main__':
     plt.yticks(range(1, ncpus[-1] + 1, 5))
     plt.suptitle(f'Strong Scaling: nx={nx}, ny={ny}, max_ncpu={max_ncpu}, repetitions={rep}')
     plt.show()
-    plt.savefig(f'{infile.stem}.png')
+    plt.savefig(f'out/{infile.stem}.png')
