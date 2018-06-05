@@ -13,10 +13,8 @@
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-rm ../output/*
-
-for i in `seq 1 10`; do
-    for n in `seq 1 36`; do
+for i in `seq 1 ${rep}`; do
+    for n in `seq 1 ${ncpu}`; do
         command="srun --ntasks=${n} ../bin/hydro ../output/"
         echo ${command}
         eval ${command}

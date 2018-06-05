@@ -1,68 +1,84 @@
+import argparse
+import itertools as it
 from pathlib import Path
 
-import numpy as np
-from scipy.io import FortranFile
 import matplotlib.pyplot as plt
+import numpy as np
+from scipy.optimize import curve_fit
 
 
-def to_array(*args):
-    return (np.array(x) for x in args)
+def model(n, alpha):
+    return 1 / (alpha + (1 - alpha) / n)
 
 
-# Retrieve Data
-output = Path.cwd().parent / 'output/'
-out_files = [x for x in output.iterdir() if x.is_file() and x.name.startswith('run_data-')]
-times = {}
-for out in out_files:
-    try:
-        with FortranFile(str(out), 'r') as f:
-            cputime, walltime = f.read_reals('f4')
-            ncpu, nx, ny = f.read_ints('i')
-            times.setdefault(ncpu, []).append([cputime, walltime])
-    except FileNotFoundError:
-        pass
+if __name__ == '__main__':
+    # Parse args
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input-file', help='Specify file to read data.')
+    args = parser.parse_args()
 
-# Calculate
-ncpus = []
-cputimes = []
-cputimes_err = []
-walltimes = []
-walltimes_err = []
-for ncpu, time in times.items():
-    time = np.array(time)
-    cputime = time[:, 0]
-    walltime = time[:, 1]
-    cputime_mean = np.mean(cputime)
-    walltime_mean = np.mean(walltime)
-    cputime_err = np.std(cputime) / np.sqrt(len(cputime))
-    walltime_err = np.std(walltime) / np.sqrt(len(walltime))
-    ncpus.append(ncpu)
-    cputimes.append(cputime_mean)
-    walltimes.append(walltime_mean)
-    cputimes_err.append(cputime_err)
-    walltimes_err.append(walltime_err)
+    # Parse Data
+    if args.input_file is None:
+        infile = max(file for file in (Path.cwd() / 'out').iterdir()
+                     if file.name.startswith('strong_scaling-')
+                     and file.name.endswith('.out'))
+    else:
+        infile = args.input_file
 
-ncpus, cputimes, cputimes_err, walltimes, walltimes_err = to_array(ncpus, cputimes, cputimes_err, walltimes, walltimes_err)
-cpu_speedup = cputimes[0]/cputimes
-wall_speedup = walltimes[0]/walltimes
-cpu_speedup_err = cpu_speedup * np.sqrt((cputimes_err[0]/cputimes[0])**2 + (cputimes_err/cputimes)**2)
-wall_speedup_err = wall_speedup * np.sqrt((walltimes_err[0]/walltimes[0])**2 + (walltimes_err/walltimes)**2)
+    with open(str(infile), 'r') as sf:
+        lines = sf.readlines()
 
-# Plot runtime
-plt.subplot(122)
-plt.errorbar(ncpus, cputimes, cputimes_err, label='cputime')
-plt.errorbar(ncpus, walltimes, walltimes_err, label='walltime')
-plt.legend()
-plt.xlabel('ncpu')
-plt.ylabel('runtime')
+    _, nx, ny, max_ncpu, *__ = str(infile).split('-')
+    nx = int(nx.partition('=')[2])
+    ny = int(ny.partition('=')[2])
+    max_ncpu = int(max_ncpu.partition('=')[2])
 
-# Plot speedup
-plt.subplot(121)
-plt.errorbar(ncpus, cpu_speedup, cpu_speedup_err, label='cpu speedup')
-plt.errorbar(ncpus, wall_speedup, wall_speedup_err, label='wall speedup')
-plt.plot(ncpus, ncpus, label='ideal speedup')
-plt.legend()
-plt.xlabel('ncpu')
-plt.ylabel('speedup')
-plt.suptitle('strong scaling speedup, sample size: {}'.format(len(min(times.values(), key=len))))
-plt.show()
+    data = zip(it.islice(lines, None, None, 3), it.islice(lines, 1, None, 3))
+    data = it.takewhile(lambda line: line[0].startswith('srun'), data)
+    times_by_ncpus = dict()
+    for line in data:
+        ncpu = int(line[0].partition('=')[2].partition(' ..')[0])
+        walltime = float(line[1].partition(':')[2])
+        times_by_ncpus.setdefault(ncpu, []).append(walltime)
+
+    # Calculate
+    rep = len(min(times_by_ncpus.values(), key=len))
+    times_by_ncpus = sorted(times_by_ncpus.items())
+    ncpus = np.array([x[0] for x in times_by_ncpus])
+    times = np.array([x[1][:rep] for x in times_by_ncpus])
+
+    maxi = np.max(times, axis=1)
+    mini = np.min(times, axis=1)
+
+    walltimes = np.mean(times, axis=1)
+    walltimes_err = np.std(times, axis=1) / np.sqrt(rep)
+
+    wall_speedup = walltimes[0] / walltimes
+    wall_speedup_err = wall_speedup * np.sqrt((walltimes_err[0] / walltimes[0]) ** 2 + (walltimes_err / walltimes) ** 2)
+
+    # Fitting
+    popt, pcov = curve_fit(model, ncpus, wall_speedup, sigma=wall_speedup_err)
+
+    # Plot runtime
+    plt.figure(figsize=(12, 6))
+    # plt.figure()
+    plt.subplot(121)
+    plt.errorbar(ncpus, walltimes, walltimes_err, label='walltime')
+    plt.legend()
+    plt.xlabel('ncpu')
+    plt.ylabel('runtime')
+
+    # Plot speedup
+    plt.subplot(122)
+    plt.errorbar(ncpus, wall_speedup, wall_speedup_err, label='wall speedup')
+    plt.plot(ncpus, model(ncpus, *popt),
+             label=r'lstsqr fit $\alpha=({:.4f}\pm{:.4f})\%$'.format(popt[0] * 100, pcov[0, 0] * 100))
+    plt.plot(ncpus, ncpus, label='ideal speedup')
+    plt.legend()
+    plt.xlabel('ncpu')
+    plt.ylabel('speedup')
+    plt.xticks(range(1, ncpus[-1] + 1, 5))
+    plt.yticks(range(1, ncpus[-1] + 1, 5))
+    plt.suptitle(f'Strong Scaling: nx={nx}, ny={ny}, max_ncpu={max_ncpu}, repetitions={rep}')
+    plt.show()
+    plt.savefig(f'{infile.stem}.png')
