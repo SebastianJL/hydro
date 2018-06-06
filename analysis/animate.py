@@ -68,6 +68,7 @@ if args.use_latest:
     path = dir / args.format
     args.outfile = dir / 'animation.mp4'
 else:
+    dir = args.dir
     path = args.dir / args.format
 print('file format pattern: {}'.format(path))
 
@@ -82,7 +83,6 @@ print('found files from {} cpus'.format(num_cpu))
 # define figure
 dpi = 96
 fig = plt.figure(figsize=(800 / dpi, 800 / dpi), dpi=dpi)
-# fig = plt.figure()
 
 # read files
 print("reading image data from files...")
@@ -98,6 +98,7 @@ while os.path.exists(str(path).format(j, 0)):
 
     # plot the map
     img = plt.imshow(
+        # np.log10(np.transpose(master_data[0, :, :])),
         np.log10(master_data[0, :, :]),
         interpolation='nearest',
         origin='lower',
@@ -122,7 +123,7 @@ if args.save:
     start_time = time.time()
     plt.xlabel('nx')
     plt.ylabel('ny')
-    plt.savefig(dir / 'fig.png')
+    plt.savefig(dir / 'fig.png', dpi=dpi, frameon=False)
     ani.save(args.outfile, writer=animation.FFMpegWriter(fps=30, codec='libx264'))
     print('time needed for saving: {:.2f}s'.format(time.time() - start_time))
 
