@@ -1,6 +1,7 @@
 import argparse
 import os
 import time
+from pathlib import Path
 from typing import Any
 
 import matplotlib.animation as animation
@@ -53,9 +54,8 @@ args = parser.parse_args()
 
 # determine path to files
 if args.use_latest:
-    output = '../output/'
-    dirs = (os.path.join(output, dir) for dir in os.listdir(output)
-            if os.path.isdir(os.path.join(output, dir)) and dir.startswith(output_dir_prefix))
+    output = Path('../output/')
+    dirs = (dir for dir in output.iterdir() if dir.name.startswith(output_dir_prefix))
     try:
         dir = max(dirs)
     except ValueError as e:
@@ -65,16 +65,16 @@ if args.use_latest:
                     output_dir_prefix))
         else:
             raise
-    path = directory(dir) + args.format
-    args.outfile = directory(dir) + 'animation.mp4'
+    path = dir / args.format
+    args.outfile = dir / 'animation.mp4'
 else:
-    path = args.dir + args.format
+    path = args.dir / args.format
 print('file format pattern: {}'.format(path))
 
 # determine num_cpu
 num_cpu = 0
 while True:
-    if not os.path.exists(path.format(0, num_cpu)):
+    if not os.path.exists(str(path).format(0, num_cpu)):
         break
     num_cpu += 1
 print('found files from {} cpus'.format(num_cpu))
@@ -88,11 +88,11 @@ fig = plt.figure(figsize=(800 / dpi, 800 / dpi), dpi=dpi)
 print("reading image data from files...")
 frames = []
 j = 0
-while os.path.exists(path.format(j, 0)):
-    master_file = path.format(j, 0)
+while os.path.exists(str(path).format(j, 0)):
+    master_file = str(path).format(j, 0)
     master_data = read(master_file)
     for i in range(1, num_cpu):
-        slave_file = path.format(j, i)
+        slave_file = str(path).format(j, i)
         slave_data = read(slave_file)
         master_data = np.hstack((master_data, slave_data))
 
