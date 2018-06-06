@@ -8,7 +8,7 @@ else
     exit
 fi
 cd ../analysis
-echo removing old outputs
+echo removing old outputs...
 rm ../output/*
 
 nx=`cat ../input/input.nml | grep nx`

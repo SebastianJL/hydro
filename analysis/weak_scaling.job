@@ -1,0 +1,26 @@
+#!/bin/bash -l
+#SBATCH --job-name=weak_scaling
+#SBATCH --account=uzh8
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=johannes.lade@uzh.ch
+#SBATCH --time=12:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-core=1
+#SBATCH --ntasks-per-node=36
+#SBATCH --cpus-per-task=1
+#SBATCH --partition=normal
+#SBATCH --constraint=mc
+
+export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
+
+for i in `seq 1 ${rep}`; do
+    for n in `seq 1 ${ncpu}`; do
+        replace 10 ny=$(( ${n}*${ny} )) ${infile}
+        command="srun --ntasks=${n} ../bin/hydro ../output/"
+        echo ${command}
+        eval ${command}
+        echo
+    done
+done
+
+mv ${infile}.copy ${infile}
