@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 cd ../bin
 echo compiling...
-#make cleanall
 if make -f Makefile.daint; then
-#    make clean
     :
 else
     echo compile error. Exiting..
@@ -11,7 +9,6 @@ else
 fi
 cd ../analysis
 rm ../output/*
-
 
 nx=`cat ../input/input.nml | grep nx`
 ny=`cat ../input/input.nml | grep ny`
