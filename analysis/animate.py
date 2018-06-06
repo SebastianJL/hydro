@@ -120,6 +120,9 @@ ani = animation.ArtistAnimation(fig, frames, interval=100, repeat_delay=100)
 if args.save:
     print('saving animation in {}'.format(args.outfile))
     start_time = time.time()
+    plt.xlabel('nx')
+    plt.ylabel('ny')
+    plt.savefig(dir / 'fig.png')
     ani.save(args.outfile, writer=animation.FFMpegWriter(fps=30, codec='libx264'))
     print('time needed for saving: {:.2f}s'.format(time.time() - start_time))
 
