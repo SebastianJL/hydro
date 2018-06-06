@@ -57,7 +57,7 @@ if __name__ == '__main__':
     wall_speedup_err = wall_speedup * np.sqrt((walltimes_err[0] / walltimes[0]) ** 2 + (walltimes_err / walltimes) ** 2)
 
     # Fitting
-    popt, pcov = curve_fit(model, ncpus, wall_speedup, sigma=wall_speedup_err)
+    popt, pcov = curve_fit(model, ncpus, wall_speedup, sigma=wall_speedup_err, absolute_sigma=True)
 
     # Plot runtime
     plt.figure(figsize=(12, 6))
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     plt.subplot(122)
     plt.errorbar(ncpus, wall_speedup, wall_speedup_err, label='wall speedup')
     plt.plot(ncpus, model(ncpus, *popt),
-             label=r'lstsqr fit $\alpha=({:.4f} \pm {:.4f})\%$'.format(popt[0] * 100, pcov[0, 0] * 100))
+             label=r'lstsqr fit $\alpha=({:.5f} \pm {:.5f})\%$'.format(popt[0] * 100, pcov[0, 0] * 100))
     plt.plot(ncpus, ncpus, label='ideal speedup')
     plt.legend()
     plt.xlabel('ncpu')
@@ -80,5 +80,5 @@ if __name__ == '__main__':
     plt.xticks(range(1, ncpus[-1] + 1, 5))
     plt.yticks(range(1, ncpus[-1] + 1, 5))
     plt.suptitle(f'Strong Scaling: nx={nx}, ny={ny}, max_ncpu={max_ncpu}, repetitions={rep}')
-    plt.show()
     plt.savefig(f'out/{infile.stem}.png')
+    plt.show()
