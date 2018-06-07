@@ -3,6 +3,7 @@ import itertools as it
 from pathlib import Path
 from enum import Enum
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
@@ -79,11 +80,13 @@ if __name__ == '__main__':
 
     # Plot runtime
     plt.figure(figsize=(12, 6))
+    matplotlib.rcParams['font.size'] = 12
     plt.subplot(121)
     plt.errorbar(ncpus, walltimes, walltimes_err, label='walltime')
     plt.legend()
     plt.xlabel('ncpu')
     plt.ylabel('runtime')
+    plt.xticks(range(1, ncpus[-1] + 1, 5))
 
     # Plot speedup / efficiency
     name = {OP_MODE.strong: 'speedup', OP_MODE.weak: 'efficiency'}[opmode]
@@ -99,6 +102,8 @@ if __name__ == '__main__':
     plt.xticks(range(1, ncpus[-1] + 1, 5))
     if opmode is OP_MODE.strong:
         plt.yticks(range(1, ncpus[-1] + 1, 5))
-    plt.suptitle(f'{opmode.value.capitalize()} Scaling: nx={nx}, ny={ny}, max_ncpu={max_ncpu}, repetitions={rep}')
+    plt.suptitle(f'{opmode.value.capitalize()} Scaling: nx={nx}, ny={ny}, max_ncpu={max_ncpu}, repetitions={rep}',
+                 fontsize=17)
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(f'out/{infile.stem}.png')
     plt.show()
