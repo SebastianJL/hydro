@@ -77,10 +77,11 @@ if __name__ == '__main__':
     # Fitting
     model = get_model(opmode)
     popt, pcov = curve_fit(model, ncpus, wall_speedup, sigma=wall_speedup_err, absolute_sigma=True)
+    perr = np.sqrt(np.diag(pcov))
 
     # Plot runtime
     plt.figure(figsize=(12, 6))
-    matplotlib.rcParams['font.size'] = 12
+    matplotlib.rcParams['font.size'] = 13
     plt.subplot(121)
     plt.errorbar(ncpus, walltimes, walltimes_err, label='walltime')
     plt.legend()
@@ -93,7 +94,7 @@ if __name__ == '__main__':
     plt.subplot(122)
     plt.errorbar(ncpus, wall_speedup, wall_speedup_err, label=f'wall {name}')
     plt.plot(ncpus, model(ncpus, *popt),
-             label=r'lstsqr fit $\alpha=({:.5f} \pm {:.5f})\%$'.format(popt[0] * 100, pcov[0, 0] * 100))
+             label=r'lstsqr fit $\alpha=({:.2f} \pm {:.2f})\%$'.format(popt[0] * 100, perr[0] * 100))
 
     plt.plot(ncpus, model(ncpus, alpha=0), label=f'ideal {name}')
     plt.legend()
