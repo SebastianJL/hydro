@@ -105,8 +105,8 @@ while os.path.exists(str(path).format(j, 0)):
         master_data = np.hstack((master_data, slave_data))
 
     # plot the map
-    master_data = np.log10(master_data)
-    img = plt.imshow(master_data[0, :, :], **settings)
+    frame = np.log10(master_data[0, :, :])
+    img = plt.imshow(frame, **settings)
     frames.append([img])
     j += 1
 
@@ -114,51 +114,53 @@ if j == 0:
     print("no files found, exiting...")
     exit()
 
+# # plot
+# settings['animated'] = False
+# fig = plt.figure(figsize=(800 / dpi, 800 / dpi), dpi=dpi)
+#
+# master_data = np.log10(master_data)
+# ax = plt.subplot(411)
+# ax.set_title('density')
+# settings['vmin'] = np.min(master_data[0, :, :])
+# settings['vmax'] = np.max(master_data[0, :, :])
+# plt.imshow(np.transpose(master_data[0, :, :]), **settings)
+# plt.ylabel('x')
+#
+# ax = plt.subplot(412)
+# ax.set_title('x-velocity')
+# plt.imshow(np.transpose(master_data[1, :, :]), **settings)
+# plt.ylabel('x')
+#
+# ax = plt.subplot(413)
+# ax.set_title('y-velocity')
+# plt.imshow(np.transpose(master_data[2, :, :]), **settings)
+# plt.ylabel('x')
+#
+# ax = plt.subplot(414)
+# ax.set_title('pressure')
+# settings['vmin'] = -2
+# settings['vmax'] = -0.9
+# im = plt.imshow(np.transpose(master_data[3, :, :]), **settings)
+# plt.xlabel('y')
+# plt.ylabel('x')
+#
+# fig.subplots_adjust(right=0.8)
+# cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
+# _min = settings['vmin']
+# _max = settings['vmax']
+# cbar = fig.colorbar(im, cax=cbar_ax, ticks=[_min, (_min+_max)/2, _max])
+# cbar.ax.set_yticklabels(['Low', 'Medium', 'High'])
+# plt.show()
+# plt.savefig(dir / 'fig.png', dpi=dpi, frameon=False)
+
 # animate
 ani = animation.ArtistAnimation(fig, frames, interval=100, repeat_delay=100)
 
-# plot
-settings['animated'] = False
-fig = plt.figure(figsize=(800 / dpi, 800 / dpi), dpi=dpi)
-
-ax = plt.subplot(411)
-ax.set_title('density')
-settings['vmin'] = np.min(master_data[0, :, :])
-settings['vmax'] = np.max(master_data[0, :, :])
-plt.imshow(np.transpose(master_data[0, :, :]), **settings)
-plt.ylabel('x')
-
-ax = plt.subplot(412)
-ax.set_title('x-velocity')
-plt.imshow(np.transpose(master_data[1, :, :]), **settings)
-plt.ylabel('x')
-
-ax = plt.subplot(413)
-ax.set_title('y-velocity')
-plt.imshow(np.transpose(master_data[2, :, :]), **settings)
-plt.ylabel('x')
-
-ax = plt.subplot(414)
-ax.set_title('pressure')
-settings['vmin'] = -2
-settings['vmax'] = -0.9
-im = plt.imshow(np.transpose(master_data[3, :, :]), **settings)
-plt.xlabel('y')
-plt.ylabel('x')
-
-fig.subplots_adjust(right=0.8)
-cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
-_min = settings['vmin']
-_max = settings['vmax']
-cbar = fig.colorbar(im, cax=cbar_ax, ticks=[_min, (_min+_max)/2, _max])
-cbar.ax.set_yticklabels(['Low', 'Medium', 'High'])
-plt.show()
 # save animation
 if args.save:
     print('saving animation in {}'.format(args.outfile))
     start_time = time.time()
 
-    plt.savefig(dir / 'fig.png', dpi=dpi, frameon=False)
     ani.save(args.outfile, writer=animation.FFMpegWriter(fps=30, codec='libx264'))
     print('time needed for saving: {:.2f}s'.format(time.time() - start_time))
 
