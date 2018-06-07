@@ -68,8 +68,8 @@ if args.use_latest:
     path = dir / args.format
     args.outfile = dir / 'animation.mp4'
 else:
-    dir = args.dir
-    path = args.dir / args.format
+    dir = Path(args.dir)
+    path = dir / args.format
 print('file format pattern: {}'.format(path))
 
 # determine num_cpu
