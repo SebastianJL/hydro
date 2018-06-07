@@ -16,8 +16,9 @@ cd ../analysis
 echo removing old outputs...
 rm ../output/*
 
-export infile='../input/input.nml'
-cp ${infile} ${infile}.copy
+now=`date +%Y-%m-%d.%H:%M:%S`
+export infile="../input/input_weak_${now}.nml"
+cp ../input/input.nml ${infile}
 export nx=100
 export ny=100
 replace 9 nx=${nx} ${infile}
