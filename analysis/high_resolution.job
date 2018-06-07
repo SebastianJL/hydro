@@ -1,0 +1,22 @@
+#!/bin/bash -l
+#SBATCH --job-name=high_res
+#SBATCH --account=uzh8
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=johannes.lade@uzh.ch
+#SBATCH --time=12:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-core=1
+#SBATCH --ntasks-per-node=36
+#SBATCH --cpus-per-task=1
+#SBATCH --partition=normal
+#SBATCH --constraint=mc
+
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+
+output='../output/output-high'
+mkdir -p ${output}
+rm -f ${output}/*
+
+command="srun ../bin/hydro ${output}"
+echo ${command}
+eval ${command}
