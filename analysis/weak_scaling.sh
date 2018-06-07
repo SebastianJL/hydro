@@ -14,7 +14,6 @@ else
 fi
 cd ../analysis
 echo removing old outputs...
-rm ../output/*
 
 now=`date +%Y-%m-%d.%H:%M:%S`
 export infile="../input/input_weak_${now}.nml"

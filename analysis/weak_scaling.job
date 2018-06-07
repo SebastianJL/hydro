@@ -13,10 +13,14 @@
 
 export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
 
+output='../output/output-weak'
+mkdir -p ${output}
+rm -f ${output}/*
+
 for i in `seq 1 ${rep}`; do
     for n in `seq 1 ${ncpu}`; do
         replace 10 ny=$(( ${n}*${ny} )) ${infile}
-        command="srun --ntasks=${n} ../bin/hydro ../output/"
+        command="srun --ntasks=${n} ../bin/hydro ${output}"
         echo ${command}
         eval ${command}
         echo

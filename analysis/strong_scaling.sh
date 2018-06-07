@@ -9,7 +9,6 @@ else
 fi
 cd ../analysis
 echo removing old outputs...
-rm ../output/*
 
 nx=`cat ../input/input.nml | grep nx`
 ny=`cat ../input/input.nml | grep ny`
