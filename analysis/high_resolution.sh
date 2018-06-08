@@ -8,7 +8,5 @@ else
     exit
 fi
 cd ../analysis
-#echo removing old outputs...
-#rm ../output/*
 
 sbatch high_resolution.job

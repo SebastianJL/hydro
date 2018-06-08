@@ -1,14 +1,14 @@
 This namelist contains various input parameters for HYDRO runs
 
 &RUN
-tend=50.0
+tend=500.0
 noutput=50
 /
 
 &MESH
-nx=200
-ny=1200
-dx=0.02
+nx=400
+ny=2400
+dx=0.01
 boundary_left=1
 boundary_right=1
 boundary_down=1
