@@ -1,5 +1,6 @@
 import argparse
 import itertools as it
+from typing import Callable, Any, Tuple
 from pathlib import Path
 from enum import Enum
 
@@ -22,6 +23,14 @@ def get_model(opmode):
     else:
         raise ValueError(f'opmode must be either "{OP_MODE.strong.value}" or "{OP_MODE.weak.value}".')
     return model
+
+
+def goodness(xdata: np.ndarray, ydata: np.ndarray, yerr: np.ndarray,
+             model: Callable[[np.ndarray, Tuple[Any, ...]], np.ndarray], *popt: Any) -> float:
+    ymodel = model(xdata, *popt)
+    chi2 = np.sum(((ydata - ymodel)/yerr)**2)
+    g = chi2/(len(xdata) - len(popt))
+    return g
 
 
 if __name__ == '__main__':
@@ -69,15 +78,20 @@ if __name__ == '__main__':
     times = np.array([x[1][:rep] for x in times_by_ncpus])
 
     walltimes = np.mean(times, axis=1)
-    walltimes_err = np.std(times, axis=1) / np.sqrt(rep)
+    walltimes_err = np.std(times, axis=1, ddof=1) #/ np.sqrt(rep)
 
-    wall_speedup = walltimes[0] / walltimes
+    wall_speedup = walltimes[0] / walltimes  # Reflects efficiency in ompode=OP_MODE.weak
     wall_speedup_err = wall_speedup * np.sqrt((walltimes_err[0] / walltimes[0]) ** 2 + (walltimes_err / walltimes) ** 2)
+    wall_speedup_err[0] = 0  # wall_speedup[0] = 1 -> wall_speedup_err[0] = 0
 
     # Fitting
     model = get_model(opmode)
-    popt, pcov = curve_fit(model, ncpus, wall_speedup, sigma=wall_speedup_err, absolute_sigma=True)
+    popt, pcov = curve_fit(model, ncpus[1:], wall_speedup[1:], sigma=wall_speedup_err[1:], absolute_sigma=True)
     perr = np.sqrt(np.diag(pcov))
+    g = goodness(ncpus[1:], wall_speedup[1:], wall_speedup_err[1:], model, *popt)
+    print(f'goodness: {g}')
+    print(f'popt: {popt}')
+    print(f'perr: {perr}')
 
     # Plot runtime
     plt.figure(figsize=(12, 6))
