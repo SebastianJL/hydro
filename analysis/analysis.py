@@ -97,16 +97,16 @@ if __name__ == '__main__':
     plt.figure(figsize=(12, 6))
     matplotlib.rcParams['font.size'] = 13
     plt.subplot(121)
-    plt.errorbar(ncpus, walltimes, walltimes_err, label='walltime')
+    plt.errorbar(ncpus, walltimes, walltimes_err, fmt='_', label='walltime')
     plt.legend()
     plt.xlabel('ncpu')
-    plt.ylabel('runtime')
+    plt.ylabel('runtime [$s$]')
     plt.xticks(range(1, ncpus[-1] + 1, 5))
 
     # Plot speedup / efficiency
     name = {OP_MODE.strong: 'speedup', OP_MODE.weak: 'efficiency'}[opmode]
     plt.subplot(122)
-    plt.errorbar(ncpus, wall_speedup, wall_speedup_err, label=f'wall {name}')
+    plt.errorbar(ncpus, wall_speedup, wall_speedup_err, fmt='_', label=f'wall {name}')
     plt.plot(ncpus, model(ncpus, *popt),
              label=r'lstsqr fit $\alpha=({:.2f} \pm {:.2f})\%$'.format(popt[0] * 100, perr[0] * 100))
 
