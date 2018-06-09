@@ -5,6 +5,7 @@
 program hydro_main
     use hydro_commons
     use hydro_parameters
+    use hydro_const
     use hydro_IO
     use hydro_principal
     use hydro_mpi_vars
@@ -12,7 +13,7 @@ program hydro_main
     use mpi
     implicit none
 
-    real(kind = prec_real) :: dt, walltime, cputime, cputime_mean, t_start, t_end
+    real(kind = prec_real) :: dt, walltime, cputime, cputime_mean, t_start, t_end, t_out
     integer(kind = prec_int) :: nbp_init, nbp_final, nbp_max, freq_p
 
     ! Inititialize
@@ -40,8 +41,10 @@ program hydro_main
     do while (t < tend .and. nstep < nstepmax)
 
         ! Output results
-        if(MOD(nstep, noutput)==0)then
+        if(t_out > 1./t_rate) then
             call output
+            nout = nout + 1
+            t_out = 0
         end if
 
         ! Compute new time-step
@@ -61,6 +64,7 @@ program hydro_main
 
         nstep = nstep + 1
         t = t + dt
+        t_out = t_out + dt
 !        write(*, '("step=",I6," t=",1pe10.3," dt=",1pe10.3)')nstep, t, dt
 
     end do

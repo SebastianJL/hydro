@@ -19,7 +19,7 @@ contains
         integer(kind = prec_int) :: narg, iargc
 
         ! Namelists
-        namelist/run/nstepmax, tend, noutput
+        namelist/run/nstepmax, tend, noutput, t_rate
         namelist/mesh/nx, ny, dx, boundary_left, boundary_right, boundary_down, boundary_up
         namelist/hydro/gamma, courant_factor, smallr, smallc, niter_riemann, &
                 &         iorder, scheme, slope_type
@@ -81,9 +81,9 @@ contains
         ! Local variables
         character(LEN = 1000) :: filename
         character(LEN = 5) :: char, charpe
-        integer(kind = prec_int) :: nout
+!        integer(kind = prec_int) :: nout
 
-        nout = nstep/noutput
+!        nout = nstep/noutput
         call title(nout, char)
         call title(world_rank, charpe)
         filename = TRIM(output_directory) // 'output_' // TRIM(char) // '.' // TRIM(charpe)

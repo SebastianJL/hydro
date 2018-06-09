@@ -21,6 +21,7 @@ module hydro_commons
     real(kind = prec_real), allocatable, dimension(:, :, :) :: uold  ! Grid
     real(kind = prec_real) :: t = 0.
     integer(kind = prec_int) :: nstep = 0
+    integer(kind = prec_int) :: nout = 0
     character(LEN = 1000) :: output_directory, timestamp
 end module hydro_commons
 
@@ -53,6 +54,7 @@ module hydro_parameters
     integer(kind = prec_int) :: niter_riemann = 10
     integer(kind = prec_int) :: iorder = 2
     real(kind = prec_real) :: slope_type = 1.
+    real(kind = prec_real) :: t_rate = 1./10
     character(LEN = 20) :: scheme = 'muscl'
     integer(kind = prec_int) :: boundary_right = 1
     integer(kind = prec_int) :: boundary_left = 1
@@ -120,7 +122,7 @@ end module hydro_mpi_datatypes
 
 module hydro_const
     ! This is used so that "zero" always has the precision 'prec_real'.
-    ! Otherwise one would write 0, 0.0 or 0.0d which are all different
+    ! Otherwise one would write 0, 0.0 or 0.0d0 which are all different
     ! precisions.
     use hydro_precision
     real(kind = prec_real) :: zero = 0.0

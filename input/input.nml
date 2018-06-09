@@ -1,8 +1,9 @@
 This namelist contains various input parameters for HYDRO runs
 
 &RUN
-tend=500.0
+tend=1000.0
 noutput=50
+t_rate=3
 /
 
 &MESH
