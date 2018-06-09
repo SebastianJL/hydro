@@ -1,5 +1,6 @@
 import argparse
 import itertools as it
+import multiprocessing
 import os
 import re
 import time
@@ -113,7 +114,9 @@ if __name__ == '__main__':
 
         # read output files and save as png files
         read_write_time = time.time()
-        print("reading image data from files and saving to png...")
+        print('{} cpus set'.format(args.nproc))
+        print('{} cpus found'.format(multiprocessing.cpu_count()))
+        print('reading image data from files and saving to png...')
         with Pool(processes=args.nproc) as pool:
             data = pool.map(write_png_file, master_files)
         read_write_time = time.time() - read_write_time
