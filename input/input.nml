@@ -6,9 +6,9 @@ t_rate=3
 /
 
 &MESH
-nx=400
-ny=2400
-dx=0.01
+nx=50
+ny=300
+dx=0.08
 boundary_left=1
 boundary_right=1
 boundary_down=1
