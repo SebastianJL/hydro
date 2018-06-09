@@ -19,6 +19,10 @@ contains
 
         ! Local variables
         integer(kind = prec_int) :: i, j
+        integer(kind = prec_int) :: imin_block, imax_block
+        integer(kind = prec_int) :: jmin_block, jmax_block
+        integer(kind = prec_int) :: nx_block, ny_block
+        integer(kind = prec_int) :: block_density
 
         ! Indices for entire grid
         imin = 1
@@ -44,7 +48,7 @@ contains
         ! Initial conditions in grid interior
         ! Warning: conservative variables U = (rho, rhou, rhov, E)
 
-        ! Wind tunnel
+        ! Set grid to plain initial conditions
         do j = jmin_local + 2, jmax_local - 2
             do i = imin + 2, imax - 2
                 uold(i, j, ID) = 1.0
@@ -57,6 +61,41 @@ contains
         ! Point explosion
         if (world_rank == 0) then
             uold(imin + 2, jmin_local + 2, IP) = 1./dx/dx
+        end if
+
+!        ! Explosion line
+!        if (world_rank == world_size - 1) then
+!            do i=imin + 2, imax - 2
+!                uold(i, jmax_local - 2, IP) = 1./dx/dx
+!            end do
+!        end if
+
+        ! Put high density block into grid
+        nx_block = nx/2
+        ny_block = 3*nx_block
+        block_density = 10
+        imin_block = int(nx/2. - nx_block/2. + 2, kind = prec_int)
+        jmin_block = int(ny/2. - ny_block/2. + 2, kind = prec_int)
+        imax_block = imin_block + nx_block
+        jmax_block = jmin_block + ny_block
+        if (jmin_local <= jmin_block .and. jmax_local >= jmax_block) then
+            do j = jmin_block, jmax_block
+                do i = imin_block, imax_block
+                    uold(i, j, ID) = block_density
+                end do
+            end do
+        else if (jmin_local > jmin_block .and. jmax_local >= jmax_block) then
+            do j = jmin_local, jmax_block
+                do i = imin_block, imax_block
+                    uold(i, j, ID) = block_density
+                end do
+            end do
+        else if (jmin_local <= jmin_block .and. jmax_local < jmax_block) then
+            do j = jmin_block, jmax_local
+                do i = imin_block, imax_block
+                    uold(i, j, ID) = block_density
+                end do
+            end do
         end if
     end subroutine init_hydro_grid
 
