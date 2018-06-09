@@ -1,10 +1,10 @@
 #!/bin/bash -l
-#SBATCH --job-name=high_res
+#SBATCH --job-name=animate
 #SBATCH --account=uzh8
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=johannes.lade@uzh.ch
 #SBATCH --time=12:00:00
-#SBATCH --nodes=2
+#SBATCH --nodes=1
 #SBATCH --ntasks-per-core=1
 #SBATCH --ntasks-per-node=36
 #SBATCH --cpus-per-task=1
@@ -13,15 +13,8 @@
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-output='../output/output-high'
-mkdir -p ${output}
-rm -f ${output}/*
+dir='../output/output-high'
 
-command="srun ../bin/hydro ${output}"
+command="srun python animate.py -d=${dir} -n=${SLURM_NTASKS_PER_NODE}"
 echo ${command}
 eval ${command}
-
-command="srun python animate.py -d=${output} -n=${SLURM_NTASKS_PER_NODE}"
-echo ${command}
-eval ${command}
-
