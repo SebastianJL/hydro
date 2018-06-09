@@ -95,8 +95,6 @@ if __name__ == '__main__':
     else:
         dir_ = Path(args.dir)
 
-    outfile = dir_ / args.outfile
-
     if args.read:
         # find files
         data_files = [f for f in dir_.iterdir() if re.match(r'output_[0-9]{5}.[0-9]{5}', f.name)]
@@ -116,12 +114,13 @@ if __name__ == '__main__':
         read_write_time = time.time()
         print('{} cpus set'.format(args.nproc))
         print('{} cpus found'.format(multiprocessing.cpu_count()))
-        print('reading image data from files and saving to png...')
+        print('reading image data from {} and saving to png...'.format(dir_))
         with Pool(processes=args.nproc) as pool:
             data = pool.map(write_png_file, master_files)
         read_write_time = time.time() - read_write_time
 
     # convert png files to animation
+    outfile = dir_ / args.outfile
     print('converting to animation in {}'.format(outfile))
     convert_time = time.time()
 
