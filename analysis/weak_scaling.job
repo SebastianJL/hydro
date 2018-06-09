@@ -11,6 +11,8 @@
 #SBATCH --partition=normal
 #SBATCH --constraint=mc
 
+# NOT WORKING
+
 export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
 
 output='../output/output-weak'
