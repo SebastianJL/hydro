@@ -13,10 +13,12 @@ contains
 
     subroutine read_params
         use hydro_parameters
+        use hydro_command_arguments
         implicit none
 
         ! Local variables
         integer(kind = prec_int) :: narg, iargc
+        integer :: status
 
         ! Namelists
         namelist/run/nstepmax, tend, noutput, t_rate
@@ -24,7 +26,10 @@ contains
         namelist/hydro/gamma, courant_factor, smallr, smallc, niter_riemann, &
                 &         iorder, scheme, slope_type
 
-        infile = "../input/input.nml"
+        call get_command_argument(arg_in, infile, status=status)
+        if (.not. status==0) then
+            infile = "../input/input.nml"
+        end if
         open(1, file = infile)
         read(1, NML = run)
         read(1, NML = mesh)

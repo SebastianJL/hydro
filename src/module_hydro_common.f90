@@ -36,7 +36,8 @@ end module hydro_mpi_vars
 
 module hydro_command_arguments
     enum, bind(c)
-        enumerator :: arg_out = 1
+        enumerator :: arg_in = 1
+        enumerator :: arg_out = 2
     end enum
 end module hydro_command_arguments
 

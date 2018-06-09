@@ -13,11 +13,12 @@
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
+indir='../input/input_high_res.nml'
 outdir='../output/output-high'
 mkdir -p ${outdir}
 rm -f ${outdir}/*
 
-command="srun ../bin/hydro ${outdir}"
+command="srun ../bin/hydro ${indir} ${outdir}"
 echo ${command}
 eval ${command}
 
