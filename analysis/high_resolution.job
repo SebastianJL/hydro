@@ -21,7 +21,7 @@ command="srun ../bin/hydro ${output}"
 echo ${command}
 eval ${command}
 
-command="srun python animate.py -d=${output} -n=${SLURM_NTASKS_PER_NODE}"
-echo ${command}
-eval ${command}
+#command="srun python animate.py -d=${output} -n=${SLURM_NTASKS_PER_NODE}"
+#echo ${command}
+#eval ${command}
 
