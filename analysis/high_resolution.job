@@ -13,15 +13,17 @@
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-output='../output/output-high'
-mkdir -p ${output}
-rm -f ${output}/*
+outdir='../output/output-high'
+mkdir -p ${outdir}
+rm -f ${outdir}/*
 
-command="srun ../bin/hydro ${output}"
+command="srun ../bin/hydro ${outdir}"
 echo ${command}
 eval ${command}
 
-#command="srun python animate.py -d=${output} -n=${SLURM_NTASKS_PER_NODE}"
-#echo ${command}
-#eval ${command}
+pystart
+
+command="python animate.py -d=${outdir} -n=${SLURM_NTASKS_PER_NODE}"
+echo ${command}
+eval ${command}
 
