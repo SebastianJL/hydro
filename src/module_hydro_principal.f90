@@ -72,8 +72,8 @@ contains
 
         ! Put high density block into grid
         nx_block = nx/2
-        ny_block = 3*nx_block
-        block_density = 10
+        ny_block = 2*nx_block
+        block_density = 100
         imin_block = int(nx/2. - nx_block/2. + 2, kind = prec_int)
         jmin_block = int(ny/2. - ny_block/2. + 2, kind = prec_int)
         imax_block = imin_block + nx_block
@@ -92,6 +92,12 @@ contains
             end do
         else if (jmin_local <= jmin_block .and. jmax_local < jmax_block) then
             do j = jmin_block, jmax_local
+                do i = imin_block, imax_block
+                    uold(i, j, ID) = block_density
+                end do
+            end do
+        else if (jmin_local > jmin_block .and. jmax_local < jmax_block) then
+            do j = jmin_local, jmax_local
                 do i = imin_block, imax_block
                     uold(i, j, ID) = block_density
                 end do

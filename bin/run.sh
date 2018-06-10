@@ -9,10 +9,10 @@ echo ${command}
 eval ${command}
 
 cd ../analysis
-command="python animate.py -n=${nproc} -d=${output}"
+command="python animate.py -d=${output} --all-cores"
 echo ${command}
 eval ${command}
 
-command="gwenview ${output}animation.gif"
-echo ${command}
-eval ${command}
+#command="gwenview ${output}animation.gif"
+#echo ${command}
+#eval ${command}

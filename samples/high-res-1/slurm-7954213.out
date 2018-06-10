@@ -1,0 +1,29 @@
+srun ../bin/hydro ../input/input_high_res.nml ../output/output-high
+Walltime [s]          : ********
+python animate.py -d=../output/output-high -n=36
+36 cpus set
+72 cpus found
+reading image data from ../output/output-high and saving to png...
+converting to animation in ../output/output-high/animation.gif
+ffmpeg -i ../output/output-high/frame_%5d.png -loglevel error -y -nostats ../output/output-high/animation.gif
+time needed for read/write pngs: 1664.55s
+time needed for converting: 1201.48s
+wall time: 2872.04s
+ 
+Batch Job Summary Report for Job "high_res" (7954213) on daint
+-----------------------------------------------------------------------------------------------------
+             Submit            Eligible               Start                 End    Elapsed  Timelimit 
+------------------- ------------------- ------------------- ------------------- ---------- ---------- 
+2018-06-09T22:58:56 2018-06-09T22:58:56 2018-06-09T22:58:58 2018-06-10T02:28:01   03:29:03   12:00:00 
+-----------------------------------------------------------------------------------------------------
+Username    Account     Partition   NNodes   Energy
+----------  ----------  ----------  ------  --------------
+course01    uzh8        normal           2    5.15M joules
+ 
+This job did not utilize any GPUs
+ 
+----------------------------------------------------------
+Scratch File System        Files       Quota
+--------------------  ----------  ----------
+/scratch/snx3000          221904     1000000
+ 
