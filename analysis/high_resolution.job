@@ -4,7 +4,7 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=johannes.lade@uzh.ch
 #SBATCH --time=12:00:00
-#SBATCH --nodes=2
+#SBATCH --nodes=10
 #SBATCH --ntasks-per-core=1
 #SBATCH --ntasks-per-node=36
 #SBATCH --cpus-per-task=1
@@ -21,7 +21,7 @@ echo ${command}
 eval ${command}
 
 command="rm -f ${outdir}/*"
-echo ${command}
+echo removing old files
 eval ${command}
 
 command="srun ../bin/hydro ${indir} ${outdir}"
@@ -30,7 +30,7 @@ eval ${command}
 
 pystart
 
-command="python animate.py -d=${outdir} -n=${SLURM_NTASKS_PER_NODE}"
+command="python animate.py -d=${outdir} --all-cores"
 echo ${command}
 eval ${command}
 

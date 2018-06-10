@@ -73,6 +73,7 @@ if __name__ == '__main__':
                         start with "{}". animation is saved in said output directory.'.format(output_dir_prefix),
                         dest='use_latest')
     parser.add_argument('-n', '--nproc', type=int, default=1, help='number of processes for multiprocessing.')
+    parser.add_argument('--all-cores', action='store_true', help='use all available cores. overwrites --nproc')
     parser.add_argument('--read', dest='read', action='store_true', help='read Fortran Files and save to png files.')
     parser.add_argument('--no-read', dest='read', action='store_false', help="don't read Fortran Files and save to png files.")
     parser.set_defaults(read=True)
@@ -112,10 +113,14 @@ if __name__ == '__main__':
 
         # read output files and save as png files
         read_write_time = time.time()
-        print('{} cpus set'.format(args.nproc))
+        if not args.all_cores:
+            print('{} cpus set'.format(args.nproc))
         print('{} cpus found'.format(multiprocessing.cpu_count()))
         print('reading image data from {} and saving to png...'.format(dir_))
-        with Pool(processes=args.nproc) as pool:
+        settings = {}
+        if not args.all_cores:
+            settings['processes'] = args.nproc
+        with Pool(**settings) as pool:
             data = pool.map(write_png_file, master_files)
         read_write_time = time.time() - read_write_time
 
@@ -126,7 +131,7 @@ if __name__ == '__main__':
 
     ff = FFmpeg(
         inputs={str(dir_ / 'frame_%5d.png'): None},
-        outputs={str(outfile): '-loglevel error -y -nostats'}
+        outputs={str(outfile): '-loglevel error -y -nostats -vf scale=200:-1'}
     )
     print(ff.cmd)
     ff.run()

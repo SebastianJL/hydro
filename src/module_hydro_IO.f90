@@ -132,15 +132,36 @@ contains
     end subroutine title
 
     subroutine unix_directory(dir)
+        use hydro_precision
+        implicit none
+
         ! Dummy variables
         character(len = *), intent(inout) :: dir
         ! Local variables
-        integer :: l
+        integer(kind = prec_int) :: l
 
         l = len(trim(dir))
         if (.not. dir(l:l) == '/') then
             dir = trim(dir) // '/'
         end if
     end subroutine unix_directory
+
+!    function convert_seconds_to_string(total) result(time)
+!        use hydro_precision
+!        implicit none
+!
+!        ! Dummy variables
+!        real(kind=prec_real) :: total
+!        character(len = *) :: time
+!        ! Local variables
+!        integer(kind = prec_int) :: hour, minute
+!        real(kind = prec_real) :: second
+!
+!        hour = int(total / 3600)              ! 3600 secs/hour
+!        minute = int((total - 3600*hour) / 60.)
+!        second =  total - 3600*hour - 60*minute
+!
+!        write(time, '(I2, I2, F7.4)') hour, minute, second
+!    end function convert_seconds_to_string
 
 end module hydro_IO
