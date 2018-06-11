@@ -1,12 +1,11 @@
 import argparse
 import itertools as it
 import multiprocessing
-import os
 import re
 import time
 from multiprocessing.pool import Pool
 from pathlib import Path
-from typing import Any, Union
+from typing import Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,22 +21,10 @@ SETTINGS = {
     'dpi' : 96
 }
 
-
-def directory(arg: Any, parser: argparse.ArgumentParser = None):
-    """Check if argument is a directory and format such that it ends with '/'"""
-    if not os.path.isdir(arg):
-        msg = 'The directory "{}" does not exist'.format(arg)
-        if parser is not None:
-            parser.error(msg)
-        else:
-            raise FileNotFoundError(msg)
-    else:
-        if not arg[-1] == '/':
-            arg += '/'
-        return str(arg)
+OUTPUT_DIR_PREFIX = 'output-'
 
 
-def read(filename: Union[str, Path]) -> np.ndarray:
+def read_fortran_file(filename: Union[str, Path]) -> np.ndarray:
     with FortranFile(str(filename), 'r') as f:
         [t, gamma] = f.read_reals('f4')
         [nx, ny, nvar, nstep] = f.read_ints('i')
@@ -47,11 +34,11 @@ def read(filename: Union[str, Path]) -> np.ndarray:
 
 
 def write_png_file(master_file: Path) -> None:
-    master_data = read(master_file)
+    master_data = read_fortran_file(master_file)
     for i in range(1, num_cpu):
         slave_file = master_file.parent / '{}.{:05}'.format(master_file.name.split(".")[0], i)
         if slave_file in data_files:
-            slave_data = read(slave_file)
+            slave_data = read_fortran_file(slave_file)
             master_data = np.hstack((master_data, slave_data))
 
     number = master_file.name.partition('_')[2].partition('.')[0]
@@ -59,42 +46,55 @@ def write_png_file(master_file: Path) -> None:
     plt.imsave(str(file), np.log10(master_data[0, :, :]), **SETTINGS)
 
 
-if __name__ == '__main__':
-    output_dir_prefix = 'output-'
-
-    # parse cli arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--directory', type=lambda arg: directory(arg, parser), default='./',
-                        help='directory in which output to be processed is saved.', dest='dir')
-    parser.add_argument('-o', '--outfile', type=str, default='animation.gif',
-                        help='filename for animation. (must be compatible with ffmpeg.)')
+def parse_cli_arguments():
+    parser = argparse.ArgumentParser(
+        description='Animate output from the hydro fluid simulation.',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument('-d', '--directory', type=Path, default='./', dest='dir',
+                        help='directory in which output to be processed is saved.')
+    parser.add_argument('-o', '--outfile', type=str, default='animation.mp4',
+                        help='filename for animation. must be compatible with ffmpeg. animation is saved in --directory.')
+    parser.add_argument('-f', '--ffin', type=str, default=None, dest='ffmpeg_in',
+                        help='set ffmpeg input options.')
+    parser.add_argument('-F', '--ffout', type=str, default='-loglevel error -y -nostats -vf scale=400:-1', dest='ffmpeg_out',
+                        help='set ffmpeg output options.')
+    parser.add_argument('-n', '--nproc', type=int, default=1, help='number of processes for multiprocessing.')
     parser.add_argument('-l', '--latest', action='store_true',
                         help='attempt to use latest output directory based on lexicographical order. directory name has to \
-                        start with "{}". animation is saved in said output directory.'.format(output_dir_prefix),
+                        start with "{}". overwrites --directory'.format(OUTPUT_DIR_PREFIX),
                         dest='use_latest')
-    parser.add_argument('-n', '--nproc', type=int, default=1, help='number of processes for multiprocessing.')
-    parser.add_argument('--all-cores', action='store_true', help='use all available cores. overwrites --nproc')
+    parser.add_argument('-a', '--all-cores', action='store_true', help='use all available cores. overwrites --nproc')
     parser.add_argument('--read', dest='read', action='store_true', help='read Fortran Files and save to png files.')
     parser.add_argument('--no-read', dest='read', action='store_false', help="don't read Fortran Files and save to png files.")
     parser.set_defaults(read=True)
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    # determine path to files
+
+def find_latest_directory():
+    output = Path('../output/')
+    dirs = (dir for dir in output.iterdir() if dir.name.startswith(OUTPUT_DIR_PREFIX))
+    try:
+        dir_ = max(dirs)
+    except ValueError as e:
+        if e.args[0] == 'max() arg is an empty sequence':
+            raise FileNotFoundError(
+                'No directory with prefix "{}" found. Use --directory to specifiy location of directory with output files.'.format(
+                    OUTPUT_DIR_PREFIX))
+        else:
+            raise
+    return dir_
+
+
+if __name__ == '__main__':
+
+    args = parse_cli_arguments()
+
     wall_time = time.time()
     if args.use_latest:
-        output = Path('../output/')
-        dirs = (dir for dir in output.iterdir() if dir.name.startswith(output_dir_prefix))
-        try:
-            dir_ = max(dirs)
-        except ValueError as e:
-            if e.args[0] == 'max() arg is an empty sequence':
-                raise FileNotFoundError(
-                    'No directory with prefix "{}" found. Use --directory to specifiy location of directory with output files.'.format(
-                        output_dir_prefix))
-            else:
-                raise
+        dir_ = find_latest_directory()
     else:
-        dir_ = Path(args.dir)
+        dir_ = args.dir
 
     if args.read:
         # find files
@@ -130,8 +130,8 @@ if __name__ == '__main__':
     convert_time = time.time()
 
     ff = FFmpeg(
-        inputs={str(dir_ / 'frame_%5d.png'): None},
-        outputs={str(outfile): '-loglevel error -y -nostats -vf scale=200:-1'}
+        inputs={str(dir_ / 'frame_%5d.png'): args.ffmpeg_in},
+        outputs={str(outfile): args.ffmpeg_out}
     )
     print(ff.cmd)
     ff.run()
