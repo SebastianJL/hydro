@@ -1,2 +1,2 @@
 # hydro
-Universitary Project for parallelizing code with mpi and open_mp.
+University Project for parallelizing code with mpi and open_mp.
